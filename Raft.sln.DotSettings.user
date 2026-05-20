@@ -1,0 +1,14 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=694df80b_002D613d_002D498f_002D9443_002D7620a339a3d0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="CheckPrime_ForVariousNums_ReturnExceptedResult" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::FCFFC2C5-443B-47C2-B057-61029B1A8960::net10.0::RaftServer.Tests.Algorithm.IsPrimeTests.CheckPrime_ForVariousNums_ReturnExceptedResult&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7b6a0de9_002De60d_002D4e20_002D90b4_002D6ea5832d2990/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CheckPrime_ForVariousNums_ReturnExceptedResult #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::FCFFC2C5-443B-47C2-B057-61029B1A8960::net10.0::RaftServer.Tests.Algorithm.IsPrimeTests.CheckPrime_ForVariousNums_ReturnExceptedResult&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::FCFFC2C5-443B-47C2-B057-61029B1A8960::net10.0::RaftServer.Tests.Engine.MathEngine.DynamicWorkDividerTest.IsMyTurn_WhenImTheFollower_TrueForMyNum&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::FCFFC2C5-443B-47C2-B057-61029B1A8960::net10.0::RaftServer.Tests.Engine.MathEngine.DynamicWorkDividerTest&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::FCFFC2C5-443B-47C2-B057-61029B1A8960::net10.0::RaftServer.Tests.Services.ConsensusServiceTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

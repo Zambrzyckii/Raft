@@ -4,5 +4,5 @@ namespace Raft.Interfaces;
 
 public interface IRaftState
 {
-    Task Execute(RaftNode context);
+    Task Execute(RaftNode _context);
 }

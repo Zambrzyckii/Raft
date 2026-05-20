@@ -1,5 +1,5 @@
-namespace Raft.Services;
-
+namespace Raft.Timer;
+//Currently unused, time stamps are hardcoded
 public static class RandomTime
 {
     public static async Task WaitRandomTime()

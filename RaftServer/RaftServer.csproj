@@ -9,8 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Protobuf Include="Protos\greet.proto" GrpcServices="Server"/>
-        <Protobuf Include="Protos\RaftConsensus.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\RaftConsensus.proto" GrpcServices="Both" />
     </ItemGroup>
 
     <ItemGroup>

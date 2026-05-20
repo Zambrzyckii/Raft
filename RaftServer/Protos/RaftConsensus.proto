@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option csharp_namespace = "Raft.Grpc";
+
+service RaftConsensus {
+  rpc RequestVote (VoteRequest) returns (VoteResponse);
+  rpc AppendEntries (AppendRequest) returns (AppendResponse);
+  rpc ProposeNumber (ProposeRequest) returns (ProposeResponse);
+}
+
+message VoteRequest {
+  int32 term = 1;
+  string candidate = 2;
+}
+
+message VoteResponse{
+  bool voteGranted = 1;
+}
+
+message AppendRequest{
+  int32 number = 1;
+  int32 leaderTerm = 2;
+  string leaderAddress = 3;
+}
+
+message AppendResponse{
+  int32 result = 1;
+  bool isDone = 2;
+}
+
+message ProposeRequest{
+  int32 number = 1;
+  string myAddress = 2;
+  string leaderAddress = 3;
+  string searchTime = 4;
+}
+
+message ProposeResponse{
+  int32 numberToSave = 1;
+  bool isFine = 2;
+  string leaderAddress = 3;
+}
