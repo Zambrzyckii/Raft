@@ -1,7 +1,5 @@
 ﻿services:
   raft:
     image: raft
-    build:
-      context: .
-      dockerfile: Raft/Dockerfile
+    build: ./RaftServer
 
