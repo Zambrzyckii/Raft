@@ -25,5 +25,5 @@ Initial, intesive creation of gRPC channels inside computational loops led to th
 1. Install docker 
 2. Clone repo ``` git clone https://gitlab.com/ZambrzyckiBartosz/raft.git ```
 3. Enter folder 
-4. Enter ``` docker-compose up --build ```
+4. Enter ``` sudo docker-compose up --build ``` or ```sudo docker compose up --build ```
 * The system will automatically spin up 8 independent processes, conduct an election campaign, elect a Leader, and staqrt distributed computations, saving the resulting registry to the ``` prime.txt ``` file.
