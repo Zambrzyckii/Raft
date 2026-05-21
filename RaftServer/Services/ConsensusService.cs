@@ -25,7 +25,7 @@ public class ConsensusService : RaftConsensus.RaftConsensusBase
             {
                 lock (_node.OfficialPrimes)
                 {
-                    if(!_node.OfficialPrimes.Contains(request.Number)) _node.OfficialPrimes.Add(request.Number);
+                    if(!_node.OfficialPrimes.Exists(p=> p.PrimeNumber == request.Number)) _node.OfficialPrimes.Add(new LogEntry(request.LeaderTerm, request.Number));
                 }
             }
         }
@@ -34,18 +34,22 @@ public class ConsensusService : RaftConsensus.RaftConsensusBase
 
     public override Task<ProposeResponse> ProposeNumber(ProposeRequest request, ServerCallContext context)
     {
+        int leaderTerm = 0;
         if (_node._currentState == Role.Leader)
         {
             lock (_node.pendingNumber)
             {
-                if (!_node.OfficialPrimes.Contains(request.Number) && _node.pendingNumber.All(p => p.Number != request.Number))
+                if (!_node.OfficialPrimes.Exists(p=> p.PrimeNumber == request.Number) && _node.pendingNumber.All(p => p.Number != request.Number))
                 {
                     _node.pendingNumber.Enqueue(request);
                 }
             }
+
+            leaderTerm = _node.currentTerm;
+            return Task.FromResult(new ProposeResponse { NumberToSave = request.Number, IsFine = true, LeaderAddress = request.LeaderAddress, LeaderTerm = leaderTerm});
         }
 
-        return Task.FromResult(new ProposeResponse { NumberToSave = request.Number, IsFine = true, LeaderAddress = request.LeaderAddress});
+        return Task.FromResult(new ProposeResponse { NumberToSave = request.Number, IsFine = false, LeaderAddress = request.LeaderAddress, LeaderTerm = leaderTerm});
     }
 
     public override Task<VoteResponse> RequestVote(VoteRequest request, ServerCallContext context)
@@ -60,6 +64,15 @@ public class ConsensusService : RaftConsensus.RaftConsensusBase
                 _node.votedFor = string.Empty;
                 _node._currentState = Role.Follower;
             }
+
+            int myLastLogTerm = 0;
+            int myLastLogIndex = _node.OfficialPrimes.Count;
+            if (myLastLogIndex > 0)
+            {
+                myLastLogTerm = _node.OfficialPrimes.Last().Term; 
+            }
+            
+            if((request.LastLogIndex < myLastLogIndex && request.LastLogTerm == myLastLogTerm) || request.LastLogTerm < myLastLogTerm) return Task.FromResult(new VoteResponse { VoteGranted = false });
 
             if (request.Term >= _node.currentTerm &&
                 (string.IsNullOrEmpty(_node.votedFor) || _node.votedFor == request.Candidate))

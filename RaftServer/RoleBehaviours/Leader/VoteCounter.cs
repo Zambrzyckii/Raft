@@ -14,9 +14,9 @@ public static class VoteCounter
         {
             lock (_context.OfficialPrimes)
             {
-                if (!_context.OfficialPrimes.Contains(numberToVote))
+                if (!_context.OfficialPrimes.Exists(p=> p.PrimeNumber == numberToVote))
                 {
-                    _context.OfficialPrimes.Add(numberToVote);
+                    _context.OfficialPrimes.Add(new LogEntry(_context.currentLeaderTerm, numberToVote));
 
                     fileStorageService.SaveToFile(numberToVote, currentProposal.MyAddress, currentProposal.SearchTime);
 

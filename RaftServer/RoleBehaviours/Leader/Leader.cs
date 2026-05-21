@@ -24,7 +24,7 @@ public class Leader : IRaftState
 
         if (currentProposal != null)
         {
-            if (_context.OfficialPrimes.Contains(currentProposal.Number))
+            if (_context.OfficialPrimes.Exists(p=> p.PrimeNumber == currentProposal.Number))
             {
                 lock (_context.pendingNumber)
                 {

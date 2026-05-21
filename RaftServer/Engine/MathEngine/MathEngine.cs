@@ -22,7 +22,7 @@ public class MathEngine : BackgroundService
                     var stoper = System.Diagnostics.Stopwatch.StartNew();
                     bool isPrime = IsPrime.CheckPrime(_currentNumber);
                     
-                    if (isPrime && !_context.OfficialPrimes.Contains(_currentNumber))
+                    if (isPrime && !_context.OfficialPrimes.Exists(p => p.PrimeNumber == _currentNumber))
                     {
                         try
                         {

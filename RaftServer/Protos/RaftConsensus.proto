@@ -11,6 +11,8 @@ service RaftConsensus {
 message VoteRequest {
   int32 term = 1;
   string candidate = 2;
+  int32 LastLogIndex = 3;
+  int32 LastLogTerm = 4;
 }
 
 message VoteResponse{
@@ -39,4 +41,5 @@ message ProposeResponse{
   int32 numberToSave = 1;
   bool isFine = 2;
   string leaderAddress = 3;
+  int32 leaderTerm = 4;
 }

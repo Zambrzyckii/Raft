@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Grpc.Net.Client;
 using Raft.Grpc;
 using Raft.Models;
@@ -6,10 +7,14 @@ namespace Raft.Engine.MathEngine;
 
 public static class ReliableProposer
 {
+    private static readonly ConcurrentDictionary<string, GrpcChannel> _channels = new();
     public static async Task SendAndWaitForAckAsync(RaftNode context, int primeNumber, string searchTime, CancellationToken token)
     {
         bool isCommitted = false;
-        var channel = GrpcChannel.ForAddress(context.currentLeader!);
+        var channel = _channels.GetOrAdd(
+            context.currentLeader!, 
+            address => GrpcChannel.ForAddress(address)
+        );
         var client = new RaftConsensus.RaftConsensusClient(channel);
         
         var package = new ProposeRequest
@@ -26,7 +31,8 @@ public static class ReliableProposer
             {
                 try
                 {
-                    await client.ProposeNumberAsync(package);
+                   var result=  await client.ProposeNumberAsync(package);
+                   context.currentLeaderTerm = result.LeaderTerm;
                 }
                 catch {}
             }
@@ -35,7 +41,7 @@ public static class ReliableProposer
             
             lock (context.OfficialPrimes)
             {
-                if (context.OfficialPrimes.Contains(primeNumber)) 
+                if (context.OfficialPrimes.Exists(p => p.PrimeNumber == primeNumber)) 
                 {
                     isCommitted = true;
                 }

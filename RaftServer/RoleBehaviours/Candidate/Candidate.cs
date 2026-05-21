@@ -9,7 +9,7 @@ public class Candidate : IRaftState
     public async Task Execute(RaftNode _context)
     {
         
-        Console.WriteLine($"[{_context.id}] I'm: {_context._currentState} and I start campain, my term is: {_context.currentTerm}");
+        Console.WriteLine($"[{_context.id}] I'm: {_context._currentState} and I start campain, my term is: {_context.currentTerm + 1}");
         _context.votedFor = _context.id;
         _context.currentTerm++;
 
@@ -43,9 +43,11 @@ public class Candidate : IRaftState
         {
             if (candidate != null)
             {
+                int myLogLength = _context.OfficialPrimes.Count;
+                int myLastTerm = myLogLength > 0 ? _context.OfficialPrimes.Last().Term : 0;
                 var result = GrpcChannel.ForAddress(candidate);
                 var client = new RaftConsensus.RaftConsensusClient(result);
-                var package = new VoteRequest { Term = _context.currentTerm, Candidate = _context.id };
+                var package = new VoteRequest { Term = _context.currentTerm, Candidate = _context.id, LastLogIndex = myLogLength, LastLogTerm = myLastTerm};
                 theVote.Add(GetVoteSafe(client, package)!);
             }
         }
