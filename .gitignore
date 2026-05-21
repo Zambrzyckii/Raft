@@ -3,8 +3,6 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
-appsettings.json
-appsettings.Development.json
 todo.txt
 primes.txt
 .idea/
