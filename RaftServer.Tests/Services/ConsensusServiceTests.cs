@@ -46,12 +46,12 @@ public class ConsensusServiceTests
     [Fact]
     public async Task AppendEntries_NumberGreaterThanZero_AddToPrimes()
     {
-        var node = new RaftNode { currentTerm = 1, OfficialPrimes = new List<int> { 2, 3 } };
+        var node = new RaftNode {currentTerm = 1, OfficialPrimes = new List<LogEntry> {new(0, 2), new(1, 3)}};
         var service = new ConsensusService(node);
         var request = new AppendRequest { LeaderTerm = 1, Number = 5 };
         await service.AppendEntries(request, null!);
 
-        Assert.Contains(5, node.OfficialPrimes);
+        Assert.True(node.OfficialPrimes.Exists(p => p.PrimeNumber == 5));
         Assert.Equal(3, node.OfficialPrimes.Count);
     }
 
