@@ -28,6 +28,7 @@ message AppendRequest{
 message AppendResponse{
   int32 result = 1;
   bool isDone = 2;
+  int32 term = 3;
 }
 
 message ProposeRequest{

@@ -13,23 +13,23 @@ public class ConsensusService : RaftConsensus.RaftConsensusBase
     
     public override Task<AppendResponse> AppendEntries(AppendRequest request, ServerCallContext context)
     {
-        if (request.LeaderAddress == _node.id) 
-            return Task.FromResult(new AppendResponse { IsDone = true, Result = 1 });
-        if(request.LeaderTerm >= _node.currentTerm)
+        if (request.LeaderAddress == _node.id)
+            return Task.FromResult(new AppendResponse { IsDone = true, Result = 1, Term = _node.currentTerm });
+        if(request.LeaderTerm < _node.currentTerm)
+            return Task.FromResult(new AppendResponse { IsDone = false, Result = 1, Term = _node.currentTerm });
+
+        _node.CancelTokenTimeout();
+        _node.currentTerm = request.LeaderTerm;
+        _node._currentState = Role.Follower;
+        _node.currentLeader = request.LeaderAddress;
+        if (request.Number > 0)
         {
-            _node.CancelTokenTimeout();
-            _node.currentTerm = request.LeaderTerm;
-            _node._currentState = Role.Follower;
-            _node.currentLeader = request.LeaderAddress;
-            if (request.Number > 0)
+            lock (_node.OfficialPrimes)
             {
-                lock (_node.OfficialPrimes)
-                {
-                    if(!_node.OfficialPrimes.Exists(p=> p.PrimeNumber == request.Number)) _node.OfficialPrimes.Add(new LogEntry(request.LeaderTerm, request.Number));
-                }
+                if(!_node.OfficialPrimes.Exists(p=> p.PrimeNumber == request.Number)) _node.OfficialPrimes.Add(new LogEntry(request.LeaderTerm, request.Number));
             }
         }
-        return Task.FromResult(new AppendResponse { IsDone = true, Result = 1 });
+        return Task.FromResult(new AppendResponse { IsDone = true, Result = 1, Term = _node.currentTerm });
     }
 
     public override Task<ProposeResponse> ProposeNumber(ProposeRequest request, ServerCallContext context)
