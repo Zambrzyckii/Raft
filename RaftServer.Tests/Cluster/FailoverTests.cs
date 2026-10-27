@@ -12,4 +12,18 @@ public class FailoverTests
         await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
             TimeSpan.FromSeconds(20), "three fresh nodes elect a single leader");
     }
+
+    [Fact]
+    public async Task Failover_WhenLeaderStops_ElectsNewLeader()
+    {
+        await using var cluster = await TestCluster.StartAsync(7200, 3);
+        await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
+            TimeSpan.FromSeconds(20), "three fresh nodes elect a single leader");
+
+        int firstLeader = cluster.SingleLeaderIndex()!.Value;
+        await cluster.StopNodeAsync(firstLeader);
+
+        await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
+            TimeSpan.FromSeconds(30), "surviving nodes elect a new leader after the old one stopped");
+    }
 }

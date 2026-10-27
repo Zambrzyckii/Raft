@@ -13,13 +13,13 @@ public class Candidate : IRaftState
         _context.votedFor = _context.id;
         _context.currentTerm++;
 
-        VoteResponse[] responses = await FarmVoteResponses(_context);
+        VoteResponse?[] responses = await FarmVoteResponses(_context);
 
         int grantedVotes = 1;
 
         foreach (var response in responses)
         {
-            if (response.VoteGranted == true) grantedVotes++;
+            if (response?.VoteGranted == true) grantedVotes++;
         }
 
         VoteResults(_context, grantedVotes);
@@ -36,9 +36,9 @@ public class Candidate : IRaftState
         }
     }
 
-    private async Task<VoteResponse[]> FarmVoteResponses(RaftNode _context)
+    private async Task<VoteResponse?[]> FarmVoteResponses(RaftNode _context)
     {
-        List<Task<VoteResponse>> theVote = new();
+        List<Task<VoteResponse?>> theVote = new();
         foreach (var candidate in _context.otherCandidates)
         {
             if (candidate != null)
@@ -48,7 +48,7 @@ public class Candidate : IRaftState
                 var result = GrpcChannel.ForAddress(candidate);
                 var client = new RaftConsensus.RaftConsensusClient(result);
                 var package = new VoteRequest { Term = _context.currentTerm, Candidate = _context.id, LastLogIndex = myLogLength, LastLogTerm = myLastTerm};
-                theVote.Add(GetVoteSafe(client, package)!);
+                theVote.Add(GetVoteSafe(client, package));
             }
         }
 
