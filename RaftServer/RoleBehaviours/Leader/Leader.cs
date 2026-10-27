@@ -36,7 +36,10 @@ public class Leader : IRaftState
 
             AppendResponse?[] theResults = await ProposeNumbers.SendProposeNumbers(_context, numberToVote, _channelCache);
 
-            TermGuard.StepDownIfBehind(_context, theResults);
+            if (TermGuard.StepDownIfBehind(_context, theResults))
+            {
+                return;
+            }
 
             int sendAgreed = 1;
             foreach (var response in theResults)
@@ -80,7 +83,10 @@ public class Leader : IRaftState
 
             AppendResponse?[] signals = await Task.WhenAll(heartbeats);
 
-            TermGuard.StepDownIfBehind(_context, signals);
+            if (TermGuard.StepDownIfBehind(_context, signals))
+            {
+                return;
+            }
         }
 
         await Task.Delay(50);

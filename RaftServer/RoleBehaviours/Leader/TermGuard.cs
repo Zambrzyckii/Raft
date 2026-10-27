@@ -5,8 +5,9 @@ namespace Raft.RoleBehaviours.Leader;
 
 public static class TermGuard
 {
-    public static void StepDownIfBehind(RaftNode _context, AppendResponse?[] responses)
+    public static bool StepDownIfBehind(RaftNode _context, AppendResponse?[] responses)
     {
+        bool steppedDown = false;
         foreach (var response in responses)
         {
             if (response != null && response.Term > _context.currentTerm)
@@ -15,7 +16,10 @@ public static class TermGuard
                 _context.currentTerm = response.Term;
                 _context.votedFor = string.Empty;
                 _context._currentState = Role.Follower;
+                steppedDown = true;
             }
         }
+
+        return steppedDown;
     }
 }

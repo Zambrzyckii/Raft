@@ -20,6 +20,24 @@ public class TermGuardTests
     }
 
     [Fact]
+    public void StepDownIfBehind_WhenAckHasNewerTerm_ReturnsTrue()
+    {
+        var node = new RaftNode { _currentState = Role.Leader, currentTerm = 2 };
+        var responses = new AppendResponse?[] { new AppendResponse { IsDone = false, Term = 5 } };
+
+        Assert.True(TermGuard.StepDownIfBehind(node, responses));
+    }
+
+    [Fact]
+    public void StepDownIfBehind_WhenAcksAtOwnTerm_ReturnsFalse()
+    {
+        var node = new RaftNode { _currentState = Role.Leader, currentTerm = 2 };
+        var responses = new AppendResponse?[] { new AppendResponse { IsDone = true, Term = 2 } };
+
+        Assert.False(TermGuard.StepDownIfBehind(node, responses));
+    }
+
+    [Fact]
     public void StepDownIfBehind_WhenAcksAtOwnTerm_StaysLeader()
     {
         var node = new RaftNode { _currentState = Role.Leader, currentTerm = 2 };
