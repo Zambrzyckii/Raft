@@ -1,7 +1,4 @@
-using Raft.Engine.RaftEngine;
-using Raft.Engine.MathEngine;
-using Raft.Models;
-using Raft.Services;
+using Raft.Hosting;
 
 int nodesCount = args.Length > 0 ? int.Parse(args[0]) : 8;
 File.Delete("primes.txt");
@@ -15,23 +12,7 @@ for (int i = 1; i <= nodesCount; i++)
 List<Task> workingServers = new();
 foreach (var adress in allAdress)
 {
-    RaftNode myAdress = new RaftNode { id = adress };
-    myAdress.otherCandidates.Clear();
-    foreach (var candidate in allAdress)
-    {
-        if (candidate != adress)
-        {
-            myAdress.otherCandidates.Add(candidate);
-        }
-    }
-    var builder = WebApplication.CreateBuilder(args);
-    builder.WebHost.UseUrls(adress);
-    builder.Services.AddSingleton(myAdress);
-    builder.Services.AddGrpc();
-    builder.Services.AddHostedService<RaftEngine>();
-    builder.Services.AddHostedService<MathEngine>();
-    var app = builder.Build();
-    app.MapGrpcService<ConsensusService>();
+    var app = NodeHost.Build(adress, allAdress, args);
     workingServers.Add(app.RunAsync());
 }
 await Task.WhenAll(workingServers);
