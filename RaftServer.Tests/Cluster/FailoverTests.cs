@@ -26,4 +26,20 @@ public class FailoverTests
         await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
             TimeSpan.FromSeconds(30), "surviving nodes elect a new leader after the old one stopped");
     }
+
+    [Fact]
+    public async Task Failover_WhenFollowerStops_KeepsCommitting()
+    {
+        await using var cluster = await TestCluster.StartAsync(7300, 3);
+        await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
+            TimeSpan.FromSeconds(20), "three fresh nodes elect a single leader");
+
+        int leader = cluster.SingleLeaderIndex()!.Value;
+        int follower = leader == 0 ? 1 : 0;
+        await cluster.StopNodeAsync(follower);
+
+        int logBefore = cluster.LogCount(leader);
+        await cluster.WaitUntilAsync(() => cluster.LogCount(leader) >= logBefore + 3,
+            TimeSpan.FromSeconds(30), "leader keeps committing new numbers after a follower stopped");
+    }
 }

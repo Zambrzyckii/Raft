@@ -34,12 +34,12 @@ public class Leader : IRaftState
             }
             int numberToVote = currentProposal.Number;
 
-            AppendResponse[] theResults = await ProposeNumbers.SendProposeNumbers(_context, numberToVote, _channelCache);
+            AppendResponse?[] theResults = await ProposeNumbers.SendProposeNumbers(_context, numberToVote, _channelCache);
 
             int sendAgreed = 1;
             foreach (var response in theResults)
             {
-                if (response.IsDone) sendAgreed++;
+                if (response?.IsDone == true) sendAgreed++;
             }
 
             await VoteCounter.VoteResultsMethod(_context, numberToVote, sendAgreed, currentProposal, _fileStorageService);
@@ -54,7 +54,7 @@ public class Leader : IRaftState
         }
         else
         {
-            List<Task<AppendResponse>> heartbeats = new();
+            List<Task<AppendResponse?>> heartbeats = new();
 
             foreach (var follower in _context.otherCandidates)
             {
@@ -72,7 +72,7 @@ public class Leader : IRaftState
                         Number = 0,
                         LeaderAddress = _context.id
                     };
-                    heartbeats.Add(GetSignal.GetSignalSafe(client, package)!);
+                    heartbeats.Add(GetSignal.GetSignalSafe(client, package));
                 }
             }
 

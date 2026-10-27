@@ -64,6 +64,15 @@ public sealed class TestCluster : IAsyncDisposable
         }
     }
 
+    public int LogCount(int index)
+    {
+        var node = _nodes[index].Node;
+        lock (node.OfficialPrimes)
+        {
+            return node.OfficialPrimes.Count;
+        }
+    }
+
     public int? SingleLeaderIndex()
     {
         List<int> leaders = new();
