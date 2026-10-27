@@ -8,15 +8,18 @@ public static class TermGuard
     public static bool StepDownIfBehind(RaftNode _context, AppendResponse?[] responses)
     {
         bool steppedDown = false;
-        foreach (var response in responses)
+        lock (_context)
         {
-            if (response != null && response.Term > _context.currentTerm)
+            foreach (var response in responses)
             {
-                Console.WriteLine($"[{_context.id}] I step down, term {response.Term} in ack is newer than mine {_context.currentTerm}");
-                _context.currentTerm = response.Term;
-                _context.votedFor = string.Empty;
-                _context._currentState = Role.Follower;
-                steppedDown = true;
+                if (response != null && response.Term > _context.currentTerm)
+                {
+                    Console.WriteLine($"[{_context.id}] I step down, term {response.Term} in ack is newer than mine {_context.currentTerm}");
+                    _context.currentTerm = response.Term;
+                    _context.votedFor = string.Empty;
+                    _context._currentState = Role.Follower;
+                    steppedDown = true;
+                }
             }
         }
 
