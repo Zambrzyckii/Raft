@@ -43,12 +43,14 @@ public class FailoverTests
             TimeSpan.FromSeconds(30), "leader keeps committing new numbers after a follower stopped");
     }
 
+    // Four nodes, not three: work shards follow the static peer list (DynamicWorkDivider.cs),
+    // so with two survivors the dead node can own every odd number and starve the test of primes.
     [Fact]
     public async Task Failover_WhenLeaderStops_ResumesCommitting()
     {
-        await using var cluster = await TestCluster.StartAsync(7400, 3);
+        await using var cluster = await TestCluster.StartAsync(7400, 4);
         await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
-            TimeSpan.FromSeconds(20), "three fresh nodes elect a single leader");
+            TimeSpan.FromSeconds(20), "four fresh nodes elect a single leader");
 
         int firstLeader = cluster.SingleLeaderIndex()!.Value;
         await cluster.StopNodeAsync(firstLeader);

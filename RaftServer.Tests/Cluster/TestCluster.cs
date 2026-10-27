@@ -100,7 +100,22 @@ public sealed class TestCluster : IAsyncDisposable
             await Task.Delay(100);
         }
 
-        throw new TimeoutException($"Condition not met within {timeout.TotalSeconds}s: {description}");
+        throw new TimeoutException($"Condition not met within {timeout.TotalSeconds}s: {description}. Cluster: {Snap()}");
+    }
+
+    public string Snap()
+    {
+        List<string> parts = new();
+        for (int i = 0; i < _nodes.Count; i++)
+        {
+            var node = _nodes[i].Node;
+            int port = new Uri(node.id!).Port;
+            parts.Add(_stopped.Contains(i)
+                ? $"{port}=DOWN"
+                : $"{port}={node._currentState}/t{node.currentTerm}/log{LogCount(i)}");
+        }
+
+        return string.Join("  ", parts);
     }
 
     public async ValueTask DisposeAsync()
