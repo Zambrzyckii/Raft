@@ -11,28 +11,29 @@ public static class ReliableProposer
     public static async Task SendAndWaitForAckAsync(RaftNode context, int primeNumber, string searchTime, CancellationToken token)
     {
         bool isCommitted = false;
-        var channel = _channels.GetOrAdd(
-            context.currentLeader!, 
-            address => GrpcChannel.ForAddress(address)
-        );
-        var client = new RaftConsensus.RaftConsensusClient(channel);
-        
-        var package = new ProposeRequest
-        {
-            Number = primeNumber, 
-            LeaderAddress = context.currentLeader,
-            MyAddress = context.id, 
-            SearchTime = searchTime
-        };
 
         while (!isCommitted && !token.IsCancellationRequested)
         {
-            if (!string.IsNullOrEmpty(context.currentLeader))
+            var currentLeader = context.currentLeader;
+            if (!string.IsNullOrEmpty(currentLeader))
             {
+                var channel = _channels.GetOrAdd(
+                    currentLeader,
+                    address => GrpcChannel.ForAddress(address)
+                );
+                var client = new RaftConsensus.RaftConsensusClient(channel);
+
+                var package = new ProposeRequest
+                {
+                    Number = primeNumber,
+                    LeaderAddress = currentLeader,
+                    MyAddress = context.id,
+                    SearchTime = searchTime
+                };
+
                 try
                 {
-                   var result=  await client.ProposeNumberAsync(package);
-                   context.currentLeaderTerm = result.LeaderTerm;
+                   await client.ProposeNumberAsync(package);
                 }
                 catch {}
             }

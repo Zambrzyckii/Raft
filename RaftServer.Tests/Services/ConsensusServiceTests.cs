@@ -44,6 +44,19 @@ public class ConsensusServiceTests
     }
 
     [Fact]
+    public async Task AppendEntries_WhenTermIsLower_DenyAndReturnCurrentTerm()
+    {
+        var node = new RaftNode { currentTerm = 5 };
+        var service = new ConsensusService(node);
+        var request = new AppendRequest { LeaderTerm = 4, LeaderAddress = "5002", Number = 7 };
+        var response = await service.AppendEntries(request, null!);
+
+        Assert.False(response.IsDone);
+        Assert.Equal(5, response.Term);
+        Assert.Empty(node.OfficialPrimes);
+    }
+
+    [Fact]
     public async Task AppendEntries_NumberGreaterThanZero_AddToPrimes()
     {
         var node = new RaftNode {currentTerm = 1, OfficialPrimes = new List<LogEntry> {new(0, 2), new(1, 3)}};

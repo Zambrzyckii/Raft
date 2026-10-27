@@ -6,9 +6,9 @@ namespace Raft.RoleBehaviours.Leader;
 
 public static class ProposeNumbers
 {
-    public static async Task<AppendResponse[]> SendProposeNumbers(RaftNode _context, int numberToVote, Dictionary<string,GrpcChannel> _channelCache)
+    public static async Task<AppendResponse?[]> SendProposeNumbers(RaftNode _context, int numberToVote, Dictionary<string,GrpcChannel> _channelCache)
     {
-        List<Task<AppendResponse>> toSend = new();
+        List<Task<AppendResponse?>> toSend = new();
 
         foreach (var follower in _context.otherCandidates)
         {
@@ -26,7 +26,7 @@ public static class ProposeNumbers
                     Number = numberToVote,
                     LeaderAddress = _context.id
                 };
-                toSend.Add(GetSignal.GetSignalSafe(client, package)!);
+                toSend.Add(GetSignal.GetSignalSafe(client, package));
             }
         }
 

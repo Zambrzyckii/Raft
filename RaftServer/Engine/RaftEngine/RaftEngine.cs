@@ -40,9 +40,10 @@ public class RaftEngine : BackgroundService
             {
                 await _state.Execute(_context);
             }
-            catch
+            catch (Exception exception)
             {
-                await Task.Delay(2000); 
+                Console.WriteLine($"[{_context.id}] {_state.GetType().Name} failed: {exception.GetType().Name}: {exception.Message}");
+                await Task.Delay(2000);
             }
         }
     }
