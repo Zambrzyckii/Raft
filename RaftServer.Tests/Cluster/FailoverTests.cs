@@ -17,11 +17,11 @@ public class FailoverTests
     public async Task Failover_WhenLeaderStops_ElectsNewLeader()
     {
         await using var cluster = await TestCluster.StartAsync(7200, 3);
-        await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
+        int? firstLeader = null;
+        await cluster.WaitUntilAsync(() => (firstLeader = cluster.SingleLeaderIndex()) is not null,
             TimeSpan.FromSeconds(20), "three fresh nodes elect a single leader");
 
-        int firstLeader = cluster.SingleLeaderIndex()!.Value;
-        await cluster.StopNodeAsync(firstLeader);
+        await cluster.StopNodeAsync(firstLeader!.Value);
 
         await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
             TimeSpan.FromSeconds(30), "surviving nodes elect a new leader after the old one stopped");
@@ -31,10 +31,11 @@ public class FailoverTests
     public async Task Failover_WhenFollowerStops_KeepsCommitting()
     {
         await using var cluster = await TestCluster.StartAsync(7300, 3);
-        await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
+        int? leaderIndex = null;
+        await cluster.WaitUntilAsync(() => (leaderIndex = cluster.SingleLeaderIndex()) is not null,
             TimeSpan.FromSeconds(20), "three fresh nodes elect a single leader");
 
-        int leader = cluster.SingleLeaderIndex()!.Value;
+        int leader = leaderIndex!.Value;
         int follower = leader == 0 ? 1 : 0;
         await cluster.StopNodeAsync(follower);
 
@@ -49,16 +50,17 @@ public class FailoverTests
     public async Task Failover_WhenLeaderStops_ResumesCommitting()
     {
         await using var cluster = await TestCluster.StartAsync(7400, 4);
-        await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
+        int? firstLeader = null;
+        await cluster.WaitUntilAsync(() => (firstLeader = cluster.SingleLeaderIndex()) is not null,
             TimeSpan.FromSeconds(20), "four fresh nodes elect a single leader");
 
-        int firstLeader = cluster.SingleLeaderIndex()!.Value;
-        await cluster.StopNodeAsync(firstLeader);
+        await cluster.StopNodeAsync(firstLeader!.Value);
 
-        await cluster.WaitUntilAsync(() => cluster.SingleLeaderIndex() is not null,
+        int? newLeaderIndex = null;
+        await cluster.WaitUntilAsync(() => (newLeaderIndex = cluster.SingleLeaderIndex()) is not null,
             TimeSpan.FromSeconds(30), "surviving nodes elect a new leader after the old one stopped");
 
-        int newLeader = cluster.SingleLeaderIndex()!.Value;
+        int newLeader = newLeaderIndex!.Value;
         int logBefore = cluster.LogCount(newLeader);
         await cluster.WaitUntilAsync(() => cluster.LogCount(newLeader) >= logBefore + 3,
             TimeSpan.FromSeconds(30), "new leader commits numbers proposed by the surviving follower");
