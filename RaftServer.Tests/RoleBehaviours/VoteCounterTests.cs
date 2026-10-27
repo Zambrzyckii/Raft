@@ -10,7 +10,7 @@ public class VoteCounterTests
     [Fact]
     public async Task VoteResultsMethod_WhenMajority_StampsCurrentTerm()
     {
-        var node = new RaftNode { currentTerm = 4, currentLeaderTerm = 2 };
+        var node = new RaftNode { currentTerm = 4 };
         var proposal = new ProposeRequest { Number = 11, MyAddress = "5003", SearchTime = "0" };
 
         await VoteCounter.VoteResultsMethod(node, 11, 2, proposal, new FileStorageService());

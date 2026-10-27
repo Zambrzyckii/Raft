@@ -14,7 +14,6 @@ public class RaftNode
     public string? currentLeader { get; set; }
 
     public List<LogEntry> OfficialPrimes { get; set; } = new();
-    public int currentLeaderTerm { get; set; }
 
     public Queue<ProposeRequest> pendingNumber { get; set; } = new();
 

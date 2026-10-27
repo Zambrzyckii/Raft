@@ -33,8 +33,7 @@ public static class ReliableProposer
 
                 try
                 {
-                   var result=  await client.ProposeNumberAsync(package);
-                   context.currentLeaderTerm = result.LeaderTerm;
+                   await client.ProposeNumberAsync(package);
                 }
                 catch {}
             }
