@@ -35,7 +35,8 @@ public class MonitoringService : RaftMonitoring.RaftMonitoringBase
             LogCount = logCount,
             PendingCount = pendingCount,
             Paused = _node.paused,
-            WorkDelay = _node.workDelay
+            WorkDelay = _node.workDelay,
+            WaitingForStart = _node.waitingForStart
         };
 
         lock (_node.events)
@@ -72,5 +73,15 @@ public class MonitoringService : RaftMonitoring.RaftMonitoringBase
     {
         _node.workDelay = Math.Clamp(request.DelayMs, 10, 3000);
         return Task.FromResult(new SetSpeedResponse { DelayMs = _node.workDelay });
+    }
+
+    public override Task<StartSearchResponse> StartSearch(StartSearchRequest request, ServerCallContext context)
+    {
+        if (_node.waitingForStart)
+        {
+            _node.waitingForStart = false;
+            Console.WriteLine($"[{_node.id}] Search started from the dashboard");
+        }
+        return Task.FromResult(new StartSearchResponse { WaitingForStart = _node.waitingForStart });
     }
 }

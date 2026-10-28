@@ -23,6 +23,7 @@
     environment:
       ConnectionStrings__Primes: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
       BindHost: "*"
+      WaitForStart: "true"
   dashboard:
     image: raft-dashboard
     build:

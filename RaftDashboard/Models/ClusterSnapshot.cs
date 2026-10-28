@@ -7,6 +7,7 @@ public record NodeStatus(
     string Address,
     bool Online,
     bool Paused,
+    bool WaitingForStart,
     string Id,
     string Role,
     int CurrentTerm,

@@ -17,6 +17,7 @@ var storage = new PostgresStorageService(dataSource);
 await storage.EnsureTableAsync();
 
 string? bindHost = config["BindHost"];
+bool waitForStart = bool.TryParse(config["WaitForStart"], out bool wait) && wait;
 
 List<string> allAdress = new();
 for (int i = 1; i <= nodesCount; i++)
@@ -27,7 +28,7 @@ for (int i = 1; i <= nodesCount; i++)
 List<Task> workingServers = new();
 foreach (var adress in allAdress)
 {
-    var app = NodeHost.Build(adress, allAdress, args, storage, bindHost);
+    var app = NodeHost.Build(adress, allAdress, args, storage, bindHost, waitForStart);
     workingServers.Add(app.RunAsync());
 }
 await Task.WhenAll(workingServers);

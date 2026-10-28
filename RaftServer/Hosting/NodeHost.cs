@@ -8,9 +8,9 @@ namespace Raft.Hosting;
 
 public static class NodeHost
 {
-    public static WebApplication Build(string adress, List<string> allAdress, string[] args, PostgresStorageService? storage = null, string? bindHost = null)
+    public static WebApplication Build(string adress, List<string> allAdress, string[] args, PostgresStorageService? storage = null, string? bindHost = null, bool waitForStart = false)
     {
-        RaftNode myAdress = new RaftNode { id = adress };
+        RaftNode myAdress = new RaftNode { id = adress, waitingForStart = waitForStart };
         myAdress.otherCandidates.Clear();
         foreach (var candidate in allAdress)
         {

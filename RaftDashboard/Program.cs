@@ -40,6 +40,7 @@ app.MapHub<ClusterHub>("/hub/cluster");
 app.MapPost("/api/nodes/{index:int}/pause", (int index, NodeClients clients) => SetPausedAsync(clients, index, true));
 app.MapPost("/api/nodes/{index:int}/resume", (int index, NodeClients clients) => SetPausedAsync(clients, index, false));
 app.MapPost("/api/speed/{delayMs:int}", (int delayMs, NodeClients clients, ClusterSpeed speed) => SetSpeedAsync(clients, speed, delayMs));
+app.MapPost("/api/search/start", (NodeClients clients) => StartSearchAsync(clients));
 app.Run();
 
 static async Task<IResult> SetPausedAsync(NodeClients clients, int index, bool paused)
@@ -78,4 +79,25 @@ static async Task<IResult> SetSpeedAsync(NodeClients clients, ClusterSpeed speed
     });
     await Task.WhenAll(calls);
     return Results.Ok(new { delayMs = speed.DelayMs });
+}
+
+static async Task<IResult> StartSearchAsync(NodeClients clients)
+{
+    var calls = clients.Addresses.Select(async address =>
+    {
+        try
+        {
+            await clients.For(address).StartSearchAsync(
+                new StartSearchRequest(), deadline: DateTime.UtcNow.AddSeconds(1));
+            return true;
+        }
+        catch (RpcException)
+        {
+            return false;
+        }
+    });
+    bool[] started = await Task.WhenAll(calls);
+    return started.Any(ok => ok)
+        ? Results.Ok(new { started = started.Count(ok => ok) })
+        : Results.Problem(statusCode: 502, title: "Cluster unreachable");
 }

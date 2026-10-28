@@ -13,6 +13,7 @@ public class RaftNode
     public List<string?> otherCandidates { get; set; } = new() { "http://localhost:5001", "http://localhost:5002" };
     public string? currentLeader { get; set; }
     public bool paused { get; set; }
+    public bool waitingForStart { get; set; }
     public int workDelay { get; set; } = 50;
 
     public List<NodeEvent> events { get; } = new();

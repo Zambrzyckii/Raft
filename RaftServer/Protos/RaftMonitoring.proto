@@ -6,6 +6,7 @@ service RaftMonitoring {
   rpc GetStatus (StatusRequest) returns (StatusResponse);
   rpc SetPaused (SetPausedRequest) returns (SetPausedResponse);
   rpc SetSpeed (SetSpeedRequest) returns (SetSpeedResponse);
+  rpc StartSearch (StartSearchRequest) returns (StartSearchResponse);
 }
 
 message StatusRequest {
@@ -23,6 +24,7 @@ message StatusResponse {
   repeated NodeEvent events = 8;
   int64 lastSeq = 9;
   int32 workDelay = 10;
+  bool waitingForStart = 11;
 }
 
 message NodeEvent {
@@ -47,4 +49,11 @@ message SetSpeedRequest {
 
 message SetSpeedResponse {
   int32 delayMs = 1;
+}
+
+message StartSearchRequest {
+}
+
+message StartSearchResponse {
+  bool waitingForStart = 1;
 }

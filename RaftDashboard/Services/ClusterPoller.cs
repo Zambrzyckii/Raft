@@ -49,13 +49,13 @@ public class ClusterPoller : BackgroundService
             var events = response.Events
                 .Select(e => new Models.NodeEvent(e.Seq, e.Kind, e.Value, e.Peer, e.Term))
                 .ToList();
-            return new NodeStatus(index, address, true, response.Paused, response.Id, response.Role,
+            return new NodeStatus(index, address, true, response.Paused, response.WaitingForStart, response.Id, response.Role,
                 response.CurrentTerm, response.CurrentLeader, response.LogCount, response.PendingCount,
                 response.WorkDelay, events);
         }
         catch (Exception)
         {
-            return new NodeStatus(index, address, false, false, string.Empty, string.Empty, 0,
+            return new NodeStatus(index, address, false, false, false, string.Empty, string.Empty, 0,
                 string.Empty, 0, 0, 0, new List<Models.NodeEvent>());
         }
     }
