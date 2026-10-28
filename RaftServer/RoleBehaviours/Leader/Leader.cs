@@ -45,7 +45,7 @@ public class Leader : IRaftState
                 if (response?.IsDone == true) sendAgreed++;
             }
 
-            await VoteCounter.VoteResultsMethod(_context, numberToVote, sendAgreed);
+            await VoteCounter.VoteResultsMethod(_context, numberToVote, sendAgreed, currentProposal);
 
             lock (_context.pendingNumber)
             {

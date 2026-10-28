@@ -1,4 +1,5 @@
 using Npgsql;
+using NpgsqlTypes;
 using Raft.Models;
 
 namespace Raft.Services;
@@ -33,8 +34,10 @@ public class PostgresStorageService
 
         foreach (var entry in entries)
         {
-            var insert = new NpgsqlBatchCommand("INSERT INTO primes (number) VALUES ($1) ON CONFLICT (number) DO NOTHING");
+            var insert = new NpgsqlBatchCommand("INSERT INTO primes (number, found_by, search_time) VALUES ($1, $2, $3) ON CONFLICT (number) DO NOTHING");
             insert.Parameters.Add(new NpgsqlParameter { Value = entry.PrimeNumber });
+            insert.Parameters.Add(new NpgsqlParameter { Value = (object?)entry.FoundBy ?? DBNull.Value, NpgsqlDbType = NpgsqlDbType.Text });
+            insert.Parameters.Add(new NpgsqlParameter { Value = (object?)entry.SearchTime ?? DBNull.Value, NpgsqlDbType = NpgsqlDbType.Text });
             batch.BatchCommands.Add(insert);
         }
 
