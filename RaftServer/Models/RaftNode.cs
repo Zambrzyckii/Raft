@@ -12,6 +12,7 @@ public class RaftNode
     public string? votedFor { get; set; } = string.Empty;
     public List<string?> otherCandidates { get; set; } = new() { "http://localhost:5001", "http://localhost:5002" };
     public string? currentLeader { get; set; }
+    public bool paused { get; set; }
 
     public List<LogEntry> OfficialPrimes { get; set; } = new();
 

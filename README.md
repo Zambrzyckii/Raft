@@ -33,6 +33,7 @@ The implementation simplifies the Raft paper on purpose. These are conscious tra
 * **Votes carry no term** - `AppendResponse` returns the responder term and a stale Leader steps down (`TermGuard`), but `VoteResponse` carries no term, so a Candidate learns about newer terms only from incoming RPCs
 * **No persistence of the Raft state** - Term, vote and log live in memory. A restarted process starts the search from scratch and re-commits the same numbers. The PostgreSQL registry survives restarts, duplicates are absorbed by `ON CONFLICT DO NOTHING`
 * **Occasional extra elections** - A healthy cluster can sometimes hold an election even though the Leader is alive, observed with eight nodes. The committed log is not affected by it
+* **No catch-up after a pause** - A paused node freezes its log because the chaos interceptor rejects consensus calls. After a resume it receives only new commits, `AppendEntries` carries no history, so its in-memory log keeps the gap. The PostgreSQL registry is unaffected, a new Leader rewrites its full log there
 
 ## How to run the project
 1. Install docker 
@@ -41,4 +42,4 @@ The implementation simplifies the Raft paper on purpose. These are conscious tra
 4. Copy the configuration template ``` cp .env.example .env ```
 5. Enter ``` sudo docker-compose up --build ``` or ```sudo docker compose up --build ```
 * The system will automatically spin up 8 independent processes, conduct an election campaign, elect a Leader, and start distributed computations, saving the resulting registry to PostgreSQL in batches of 50 (table `primes`, reachable from the host with `psql -h localhost -p 5434 -U raft -d raft`).
-* The `dashboard` service polls every node's `GetStatus` over gRPC and streams the live cluster state (roles, terms, log sizes) over SignalR at `http://localhost:5100/hub/cluster`. It also serves the Angular dashboard, open `http://localhost:5100` in a browser to watch the cluster live.
+* The `dashboard` service polls every node's `GetStatus` over gRPC and streams the live cluster state (roles, terms, log sizes) over SignalR at `http://localhost:5100/hub/cluster`. It also serves the Angular dashboard, open `http://localhost:5100` in a browser to watch the cluster live. Each node can be paused and resumed from the UI, or with `curl -X POST localhost:5100/api/nodes/4/pause` and `.../resume`, a paused node rejects consensus calls and looks dead to the rest of the cluster while still reporting its status.

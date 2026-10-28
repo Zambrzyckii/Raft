@@ -4,6 +4,7 @@ option csharp_namespace = "Raft.Grpc";
 
 service RaftMonitoring {
   rpc GetStatus (StatusRequest) returns (StatusResponse);
+  rpc SetPaused (SetPausedRequest) returns (SetPausedResponse);
 }
 
 message StatusRequest {
@@ -16,4 +17,13 @@ message StatusResponse {
   string currentLeader = 4;
   int32 logCount = 5;
   int32 pendingCount = 6;
+  bool paused = 7;
+}
+
+message SetPausedRequest {
+  bool paused = 1;
+}
+
+message SetPausedResponse {
+  bool paused = 1;
 }

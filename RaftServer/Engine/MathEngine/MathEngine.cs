@@ -15,7 +15,7 @@ public class MathEngine : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_context._currentState == Role.Follower && !string.IsNullOrEmpty(_context.currentLeader))
+            if (!_context.paused && _context._currentState == Role.Follower && !string.IsNullOrEmpty(_context.currentLeader))
             {
                 if (DynamicWorkDivider.IsMyTurn(_context, _currentNumber))
                 {

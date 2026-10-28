@@ -23,6 +23,12 @@ public class RaftEngine : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            if (_context.paused)
+            {
+                await Task.Delay(200, stoppingToken);
+                continue;
+            }
+
             if (_context._currentState == Role.Follower && _state is not Follower)
             {
                 _state = new Follower();

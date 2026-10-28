@@ -33,7 +33,15 @@ public class MonitoringService : RaftMonitoring.RaftMonitoringBase
             CurrentTerm = _node.currentTerm,
             CurrentLeader = _node.currentLeader ?? string.Empty,
             LogCount = logCount,
-            PendingCount = pendingCount
+            PendingCount = pendingCount,
+            Paused = _node.paused
         });
+    }
+
+    public override Task<SetPausedResponse> SetPaused(SetPausedRequest request, ServerCallContext context)
+    {
+        _node.paused = request.Paused;
+        Console.WriteLine($"[{_node.id}] {(request.Paused ? "Paused" : "Resumed")} from the dashboard");
+        return Task.FromResult(new SetPausedResponse { Paused = _node.paused });
     }
 }

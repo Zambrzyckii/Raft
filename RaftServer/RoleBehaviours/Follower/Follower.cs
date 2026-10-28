@@ -14,6 +14,11 @@ public class Follower() : IRaftState
         {
             await Task.Delay(randomAwaitTime, _context._cancellationToken.Token);
 
+            if (_context.paused)
+            {
+                return;
+            }
+
             Console.WriteLine($"[{_context.id}] Timeout leader is dead");
             _context._currentState = Role.Candidate;
         }

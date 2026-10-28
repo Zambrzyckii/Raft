@@ -2,5 +2,8 @@
   "/hub": {
     "target": "http://localhost:5100",
     "ws": true
+  },
+  "/api": {
+    "target": "http://localhost:5100"
   }
 }
