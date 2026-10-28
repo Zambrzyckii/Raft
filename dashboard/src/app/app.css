@@ -43,11 +43,12 @@ main {
 .circle {
   width: 64px;
   height: 64px;
-  border: 1px solid var(--line);
+  border: 1px dashed var(--line);
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--glass);
   color: var(--ink);
   font-size: 1.1rem;
+  letter-spacing: 0.05em;
   cursor: pointer;
   transition: 200ms;
 }
@@ -62,11 +63,11 @@ main {
 }
 
 .leader .circle {
+  border-style: solid;
   border-color: var(--accent);
-  background: var(--accent);
-  color: var(--bg);
-  font-weight: 700;
-  box-shadow: 0 0 28px var(--accent-glow);
+  color: var(--accent);
+  box-shadow: 0 0 18px var(--accent-glow);
+  text-shadow: 0 0 8px var(--accent-glow);
 }
 
 .candidate .circle {

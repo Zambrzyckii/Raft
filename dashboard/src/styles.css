@@ -1,11 +1,13 @@
 :root {
-  --bg: #0d0c24;
-  --surface: #14123a;
-  --line: #2c2960;
-  --dim: #8783bd;
-  --ink: #dcd8ff;
-  --accent: #a28bff;
-  --accent-glow: rgba(162, 139, 255, 0.55);
+  --bg: #070605;
+  --glass: rgba(7, 6, 5, 0.92);
+  --dot: #2a2219;
+  --line: #3a3127;
+  --dim: #9a8a72;
+  --ink: #efe6d6;
+  --accent: #ffb000;
+  --accent-glow: rgba(255, 176, 0, 0.5);
+  --grid: 24px;
   color-scheme: dark;
 }
 
@@ -20,7 +22,9 @@ body {
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: radial-gradient(circle, var(--dot) 1px, transparent 1.5px);
+  background-size: var(--grid) var(--grid);
   color: var(--ink);
   font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
