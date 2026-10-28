@@ -10,6 +10,7 @@ The project is fully distributed computing system designed for asynchronous prim
 
 * C#
 * gRPC
+* PostgreSQL
 * BackgroundServices and state machine
 * Docker, Docker Compose
 
@@ -28,7 +29,7 @@ The implementation simplifies the Raft paper on purpose. These are conscious tra
 * **No commit index** - A follower appends a number as soon as it arrives in `AppendEntries`, before the Leader has counted the acknowledgements, so a follower can hold an entry that was never committed by a majority. Replication is set based, there is no log matching and no backtracking
 * **Static work pool** - `DynamicWorkDivider` shards numbers over the full peer list with only the current Leader removed. Numbers assigned to a crashed follower are not recomputed by anyone. With three nodes and one of them dead, the surviving follower can even end up with a shard that contains no primes at all (only even numbers)
 * **Votes carry no term** - `AppendResponse` returns the responder term and a stale Leader steps down (`TermGuard`), but `VoteResponse` carries no term, so a Candidate learns about newer terms only from incoming RPCs
-* **No persistence** - Term, vote and log live in memory. A restarted process starts the search from scratch
+* **No persistence of the Raft state** - Term, vote and log live in memory. A restarted process starts the search from scratch and re-commits the same numbers. The PostgreSQL registry survives restarts, duplicates are absorbed by `ON CONFLICT DO NOTHING`
 * **Occasional extra elections** - A healthy cluster can sometimes hold an election even though the Leader is alive, observed with eight nodes. The committed log is not affected by it
 
 ## How to run the project
@@ -36,4 +37,4 @@ The implementation simplifies the Raft paper on purpose. These are conscious tra
 2. Clone repo ``` git clone https://gitlab.com/ZambrzyckiBartosz/raft.git ```
 3. Enter folder 
 4. Enter ``` sudo docker-compose up --build ``` or ```sudo docker compose up --build ```
-* The system will automatically spin up 8 independent processes, conduct an election campaign, elect a Leader, and staqrt distributed computations, saving the resulting registry to the ``` prime.txt ``` file.
+* The system will automatically spin up 8 independent processes, conduct an election campaign, elect a Leader, and staqrt distributed computations, saving the resulting registry to PostgreSQL in batches of 50 (table `primes`, reachable from the host with `psql -h localhost -p 5434 -U raft -d raft`).
