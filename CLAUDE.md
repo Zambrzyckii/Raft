@@ -14,7 +14,9 @@ Verified on .NET SDK 10.0.113:
 - Single test method: `dotnet test --filter "FullyQualifiedName=RaftServer.Tests.Services.ConsensusServiceTests.ProposeNumber_WhenNotLeader_Ignore"`
 - Run the cluster: copy `.env.example` to `.env` once and `docker compose up -d postgres` first, then `dotnet run --project RaftServer` (8 nodes) or `dotnet run --project RaftServer -- 3` (3 nodes; a bare `3` without `--` is forwarded as well)
 - Run the dashboard gateway against a running cluster: `dotnet run --project RaftDashboard`, passing the cluster's node count the same way (`-- 3`, default 8). SignalR hub on `http://localhost:5100/hub/cluster`, port 5100 must be free, no database needed
-- Containerised: `docker compose up --build`
+- Run the dashboard UI in dev: `npm install` once in `dashboard/`, then `ng serve` there. UI on `http://localhost:4200`, `/hub` is proxied to the gateway (`dashboard/proxy.conf.json`, wired in `angular.json`), so the cluster and the gateway must be running
+- Build the UI: `ng build` in `dashboard/` (output `dashboard/dist/dashboard/browser`)
+- Containerised: `docker compose up --build`; the dashboard UI is served at `http://localhost:5100`
 
 No linter or formatter is configured — there is no `.editorconfig`, `Directory.Build.props` or analyzer package. `Raft.sln.DotSettings.user` is a per-user Rider file, not a project-wide convention.
 
@@ -61,9 +63,11 @@ Channel reuse is deliberate (socket exhaustion was a real problem in this projec
 
 ### Dashboard gateway
 
-`RaftDashboard/` is a second web app in the solution that turns the monitoring contract into a browser feed; it has no database and reads no `.env`. `ClusterPoller` (`RaftDashboard/Services/ClusterPoller.cs:25-34`) polls `GetStatus` on every node in parallel every 500 ms over one `GrpcChannel` per node, cached for the gateway's lifetime, and broadcasts one `ClusterSnapshot` to all SignalR clients as the `ClusterState` event on the `/hub/cluster` hub (`RaftDashboard/Program.cs:23`). A dead node does not fail the round: `GetStatusSafe` (`ClusterPoller.cs:36-49`) turns a 1 s deadline or any error into `online = false`, mirroring the server's `*Safe` convention. `ClusterHub` is deliberately empty — the browser only listens.
+`RaftDashboard/` is a second web app in the solution that turns the monitoring contract into a browser feed; it has no database and reads no `.env`. `ClusterPoller` (`RaftDashboard/Services/ClusterPoller.cs:25-34`) polls `GetStatus` on every node in parallel every 500 ms over one `GrpcChannel` per node, cached for the gateway's lifetime, and broadcasts one `ClusterSnapshot` to all SignalR clients as the `ClusterState` event on the `/hub/cluster` hub (`RaftDashboard/Program.cs:32`). A dead node does not fail the round: `GetStatusSafe` (`ClusterPoller.cs:36-49`) turns a 1 s deadline or any error into `online = false`, mirroring the server's `*Safe` convention. `ClusterHub` is deliberately empty — the browser only listens.
 
 Node addresses are built the same way the cluster builds them, `http://{NodeHost}:500{i}` with the count from `args[0]` (default 8, `RaftDashboard/Program.cs:10-15`); `NodeHost` defaults to `localhost` and compose sets `raft`, which is what `BindHost=*` on the raft service exists for. `GatewayUrl` (default `http://localhost:5100`, `RaftDashboard/Program.cs:8`) sets the bind address, compose sets `http://*:5100` and publishes the port. The proto is linked from `RaftServer/Protos/RaftMonitoring.proto` (`RaftDashboard.csproj:11`), which is why `RaftDashboard/Dockerfile` builds with the repo root as context (`compose.yaml`), unlike `RaftServer/Dockerfile` which builds from its own directory. The project uses the default `RaftDashboard.*` namespaces, not the server's `Raft.*`.
+
+The browser UI is an Angular app in `dashboard/` (Angular CLI 22, zoneless, signals). The `Cluster` service (`dashboard/src/app/cluster.ts`) owns the one `HubConnection` (relative URL `/hub/cluster`, automatic reconnect, a 2 s retry loop around the initial start) and exposes the last `ClusterSnapshot` as a signal that the `App` component renders as a plain node list (`dashboard/src/app/app.html`). Styling is deliberately minimal for now. In dev the UI runs on `ng serve` and reaches the gateway through the proxy, so there is no CORS anywhere. In the container the gateway serves the built app itself: `RaftDashboard/Dockerfile` builds it in a `node:26-alpine` stage and drops `dist/dashboard/browser` into `wwwroot`, and `RaftDashboard/Program.cs:24-30` enables static files plus an `index.html` fallback only when `wwwroot/index.html` exists, so host runs of the gateway stay API-only.
 
 ## Conventions
 
