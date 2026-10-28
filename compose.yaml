@@ -22,6 +22,7 @@
         condition: service_healthy
     environment:
       ConnectionStrings__Primes: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      BindHost: "*"
 
 volumes:
   raft_pgdata:

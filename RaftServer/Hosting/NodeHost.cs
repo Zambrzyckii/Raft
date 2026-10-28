@@ -8,7 +8,7 @@ namespace Raft.Hosting;
 
 public static class NodeHost
 {
-    public static WebApplication Build(string adress, List<string> allAdress, string[] args, PostgresStorageService? storage = null)
+    public static WebApplication Build(string adress, List<string> allAdress, string[] args, PostgresStorageService? storage = null, string? bindHost = null)
     {
         RaftNode myAdress = new RaftNode { id = adress };
         myAdress.otherCandidates.Clear();
@@ -21,7 +21,7 @@ public static class NodeHost
         }
         var builder = WebApplication.CreateBuilder(args);
         int port = new Uri(adress).Port;
-        builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+        builder.WebHost.UseUrls(bindHost == null ? adress : $"http://{bindHost}:{port}");
         builder.Services.AddSingleton(myAdress);
         if (storage != null)
         {
