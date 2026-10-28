@@ -16,7 +16,9 @@ for (int i = 1; i <= nodesCount; i++)
     nodeAddresses.Add($"http://{nodeHost}:500{i}");
 }
 
-int workDelay = int.TryParse(builder.Configuration["WorkDelay"], out int configuredDelay) ? configuredDelay : 800;
+int workDelay = int.TryParse(builder.Configuration["WorkDelay"], out int configuredDelay)
+    ? Math.Clamp(configuredDelay, 10, 3000)
+    : 800;
 
 builder.Services.AddSingleton(new NodeClients(nodeAddresses));
 builder.Services.AddSingleton(new ClusterSpeed(workDelay));
