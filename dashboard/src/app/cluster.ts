@@ -25,11 +25,15 @@ export class Cluster {
   }
 
   pause(index: number): void {
-    this.http.post(`/api/nodes/${index}/pause`, null).subscribe();
+    this.http.post(`/api/nodes/${index}/pause`, null).subscribe({
+      error: error => console.error(`pause of node ${index} failed`, error)
+    });
   }
 
   resume(index: number): void {
-    this.http.post(`/api/nodes/${index}/resume`, null).subscribe();
+    this.http.post(`/api/nodes/${index}/resume`, null).subscribe({
+      error: error => console.error(`resume of node ${index} failed`, error)
+    });
   }
 
   private async start(): Promise<void> {
