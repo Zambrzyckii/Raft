@@ -27,7 +27,7 @@ public class StorageEngine : BackgroundService
                     List<LogEntry> toSave;
                     lock (_context.OfficialPrimes)
                     {
-                        toSave = _context.OfficialPrimes.Skip(_savedCount).ToList();
+                        toSave = _context.OfficialPrimes.Skip(_savedCount).Take(BatchSize).ToList();
                     }
 
                     if (toSave.Count >= BatchSize)
