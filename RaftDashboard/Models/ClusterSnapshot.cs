@@ -1,5 +1,7 @@
 namespace RaftDashboard.Models;
 
+public record NodeEvent(long Seq, string Kind, int Value, string Peer, int Term);
+
 public record NodeStatus(
     int Index,
     string Address,
@@ -10,6 +12,8 @@ public record NodeStatus(
     int CurrentTerm,
     string CurrentLeader,
     int LogCount,
-    int PendingCount);
+    int PendingCount,
+    int WorkDelay,
+    List<NodeEvent> Events);
 
-public record ClusterSnapshot(DateTime Timestamp, List<NodeStatus> Nodes);
+public record ClusterSnapshot(DateTime Timestamp, List<NodeStatus> Nodes, int DelayMs);
