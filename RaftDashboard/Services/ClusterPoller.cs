@@ -1,4 +1,3 @@
-using Grpc.Net.Client;
 using Microsoft.AspNetCore.SignalR;
 using Raft.Grpc;
 using RaftDashboard.Hubs;
@@ -8,18 +7,13 @@ namespace RaftDashboard.Services;
 
 public class ClusterPoller : BackgroundService
 {
-    private readonly List<string> _nodeAddresses;
+    private readonly NodeClients _clients;
     private readonly IHubContext<ClusterHub> _hub;
-    private readonly Dictionary<string, RaftMonitoring.RaftMonitoringClient> _clients = new();
 
-    public ClusterPoller(List<string> nodeAddresses, IHubContext<ClusterHub> hub)
+    public ClusterPoller(NodeClients clients, IHubContext<ClusterHub> hub)
     {
-        _nodeAddresses = nodeAddresses;
+        _clients = clients;
         _hub = hub;
-        foreach (var address in nodeAddresses)
-        {
-            _clients[address] = new RaftMonitoring.RaftMonitoringClient(GrpcChannel.ForAddress(address));
-        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -27,24 +21,25 @@ public class ClusterPoller : BackgroundService
         using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(500));
         while (await timer.WaitForNextTickAsync(stoppingToken))
         {
-            var statuses = await Task.WhenAll(_nodeAddresses.Select(GetStatusSafe));
+            var statuses = await Task.WhenAll(
+                _clients.Addresses.Select((address, i) => GetStatusSafe(address, i + 1)));
             var snapshot = new ClusterSnapshot(DateTime.UtcNow, statuses.ToList());
             await _hub.Clients.All.SendAsync("ClusterState", snapshot, stoppingToken);
         }
     }
 
-    private async Task<NodeStatus> GetStatusSafe(string address)
+    private async Task<NodeStatus> GetStatusSafe(string address, int index)
     {
         try
         {
-            var response = await _clients[address].GetStatusAsync(
+            var response = await _clients.For(address).GetStatusAsync(
                 new StatusRequest(), deadline: DateTime.UtcNow.AddSeconds(1));
-            return new NodeStatus(address, true, response.Id, response.Role,
+            return new NodeStatus(index, address, true, response.Paused, response.Id, response.Role,
                 response.CurrentTerm, response.CurrentLeader, response.LogCount, response.PendingCount);
         }
         catch (Exception)
         {
-            return new NodeStatus(address, false, string.Empty, string.Empty, 0, string.Empty, 0, 0);
+            return new NodeStatus(index, address, false, false, string.Empty, string.Empty, 0, string.Empty, 0, 0);
         }
     }
 }

@@ -1,8 +1,10 @@
 namespace RaftDashboard.Models;
 
 public record NodeStatus(
+    int Index,
     string Address,
     bool Online,
+    bool Paused,
     string Id,
     string Role,
     int CurrentTerm,
