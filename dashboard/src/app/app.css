@@ -15,7 +15,7 @@ main {
 
 .stage {
   position: relative;
-  width: min(100cqw - 1rem, 100cqh);
+  width: min(100cqw - 1rem, 100cqh, (100cqh - 7.5rem) / 0.86);
   aspect-ratio: 1;
 }
 
