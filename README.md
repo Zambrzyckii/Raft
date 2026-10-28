@@ -1,45 +1,62 @@
-# Distributed Math Cluster - Raft Consensus
+# Raft Consensus Cluster
 
+[![CI](https://img.shields.io/github/actions/workflow/status/Zambrzyckii/Raft/ci.yml?branch=main&logo=github&label=CI)](https://github.com/Zambrzyckii/Raft/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Zambrzyckii/Raft)](https://github.com/Zambrzyckii/Raft/releases/latest)
+[![License](https://img.shields.io/github/license/Zambrzyckii/Raft)](LICENSE)
 
+![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge)
+![gRPC](https://img.shields.io/badge/gRPC-244C5A?style=for-the-badge)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![SignalR](https://img.shields.io/badge/SignalR-0078D4?style=for-the-badge)
+![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-## Project overview
+A Raft consensus cluster written in C# on .NET 10. Eight nodes elect a leader and replicate a log over gRPC. The followers split an open-ended search for prime numbers and propose every prime they find, and the leader commits each one and stores the log in PostgreSQL. The nodes are in-process Kestrel servers, so the whole cluster runs as one process in one container. An Angular dashboard shows it live, with elections, proposals and commits animated as they happen, and a click on a node pauses it so you can watch a failover.
 
-The project is fully distributed computing system designed for asynchronous prime number searching. It was designed with high availability and fault tolerance in mind. Instead of relying on central server, the cluster utilizes an implementation of the Raft consensus algorithm to elect a Leader, synchronize data, and maintain a consistent state across all active instances. The cluster survives a crash of a single node, which is covered by integration tests in `RaftServer.Tests/Cluster`. The conscious simplifications relative to the Raft paper are listed in Known limitations below.
+![The dashboard during a prime search, a leader pause and the election that follows](.github/assets/demo.gif)
+
+## Run it
+
+You need Docker with Compose.
+
+```bash
+git clone https://github.com/Zambrzyckii/Raft.git
+cd Raft
+cp .env.example .env
+docker compose up --build
+```
+
+Open http://localhost:5100. The cluster elects a leader and waits, so press `start prime search` in the dashboard (or run `curl -X POST localhost:5100/api/search/start`). The gateway paces the search at 800 ms per checked number and the slider in the header changes it. Click a node to pause or resume it. Found primes are saved to PostgreSQL in batches of 50 (table `primes`, `psql -h localhost -p 5434 -U raft -d raft`, password `raft`).
+
+The tests need the .NET 10 SDK, no database and no Docker. There are 27 of them and they take about 40 seconds.
+
+```bash
+dotnet test Raft.sln
+```
+
+Every release also publishes the images to GitHub Container Registry as `ghcr.io/zambrzyckii/raft` and `ghcr.io/zambrzyckii/raft-dashboard`. `compose.yaml` itself builds them from source.
 
 ## Technologies
 
-* C#
-* gRPC
-* PostgreSQL
-* SignalR
-* Angular
-* BackgroundServices and state machine
-* Docker, Docker Compose
-
-## Challanges solved and Architecture
-
-* **Raft Algorithm** - Nodes in cluster dynamically change their roles (Follower -> Candidate -> Leader) depending on the network state. State transitions are implemented using the State design patter, which eliminates complex conditional statements and encapsulates node behaviour logic based on its current roles
-* **Dynamic shrading** - The cluster does not use static configuration files to assign task pools. The ranges of numbers to check is dynamically divided among nodes using modulo operation, takin into account the number of currently active followers. After a Leader change the system automatically rebalances the work allocation. A crashed follower keeps its share of numbers (see Known limitations)
-* **Network Optimization and Socket Exhaustion problem** -
-Initial, intesive creation of gRPC channels inside computational loops led to the exhaustion of TCP ports at the OS level. the issue was resolved by implementing connection pooling pattern. Network channels are created once, cached in RAM and reused to send asynchronous requests
-* **Race conditions** - The multi thread nature of the nodes created risk of race conditions and memory corruption. The code was secured with locks on shared collections and deduplication mechanisms. Among other things the double voting problem (voting twice in the same term by follower/candidate) was solved by implementing a thread-safe state machine that "seals" the cast vote. Some reads of the shared collections still happen outside those locks (see Known limitations)
+* C# and .NET 10 for the nodes (`RaftServer`) and the dashboard gateway (`RaftDashboard`), with `BackgroundService` engines for consensus, the prime search and storage
+* The State pattern for the Follower, Candidate and Leader roles, and modulo sharding of the number space over the followers
+* gRPC for consensus between nodes (`RaftConsensus.proto`) and for monitoring from the gateway (`RaftMonitoring.proto`)
+* SignalR to push the cluster state from the gateway to the browser
+* Angular 22 with signals for the dashboard (`dashboard/`)
+* PostgreSQL through Npgsql for the registry of found primes
+* xUnit for unit tests and in-process failover tests
+* Docker Compose for the postgres, cluster and dashboard services, GitHub Actions for CI and for publishing the images
 
 ## Known limitations
 
-The implementation simplifies the Raft paper on purpose. These are conscious trade-offs.
+Some of these are deliberate simplifications of the Raft paper, the others are known gaps.
 
-* **No commit index** - A follower appends a number as soon as it arrives in `AppendEntries`, before the Leader has counted the acknowledgements, so a follower can hold an entry that was never committed by a majority. Replication is set based, there is no log matching and no backtracking
-* **Static work pool** - `DynamicWorkDivider` shards numbers over the full peer list with only the current Leader removed. Numbers assigned to a crashed follower are not recomputed by anyone. With three nodes and one of them dead, the surviving follower can even end up with a shard that contains no primes at all (only even numbers)
-* **Votes carry no term** - `AppendResponse` returns the responder term and a stale Leader steps down (`TermGuard`), but `VoteResponse` carries no term, so a Candidate learns about newer terms only from incoming RPCs
-* **No persistence of the Raft state** - Term, vote and log live in memory. A restarted process starts the search from scratch and re-commits the same numbers. The PostgreSQL registry survives restarts, duplicates are absorbed by `ON CONFLICT DO NOTHING`
-* **Occasional extra elections** - A healthy cluster can sometimes hold an election even though the Leader is alive, observed with eight nodes. The committed log is not affected by it
-* **No catch-up after a pause** - A paused node freezes its log because the chaos interceptor rejects consensus calls. After a resume it receives only new commits, `AppendEntries` carries no history, so its in-memory log keeps the gap. The PostgreSQL registry is unaffected, a new Leader rewrites its full log there
-
-## How to run the project
-1. Install docker 
-2. Clone repo ``` git clone https://gitlab.com/ZambrzyckiBartosz/raft.git ```
-3. Enter folder 
-4. Copy the configuration template ``` cp .env.example .env ```
-5. Enter ``` sudo docker-compose up --build ``` or ```sudo docker compose up --build ```
-* The system will automatically spin up 8 independent processes, conduct an election campaign, elect a Leader and wait for the start signal from the dashboard, then run distributed computations, saving the resulting registry to PostgreSQL in batches of 50 (table `primes`, reachable from the host with `psql -h localhost -p 5434 -U raft -d raft`).
-* The `dashboard` service polls every node's `GetStatus` over gRPC and streams the live cluster state (roles, terms, log sizes) over SignalR at `http://localhost:5100/hub/cluster`. It also serves the Angular dashboard, open `http://localhost:5100` in a browser to watch the cluster live, an animated scene with followers on an orbit, the leader in the centre and numbers flying between them. The search starts when you press `start prime search` in the dashboard's prompt line (or run `curl -X POST localhost:5100/api/search/start`), so nothing is computed before the page is open. The gateway deliberately slows the search to a watchable pace (800 ms per checked number) and the header slider adjusts it, also via `curl -X POST localhost:5100/api/speed/200`. Each node can be paused and resumed by clicking its circle, or with `curl -X POST localhost:5100/api/nodes/4/pause` and `.../resume`, a paused node rejects consensus calls and looks dead to the rest of the cluster while still reporting its status.
+* No commit index. A follower appends a number as soon as `AppendEntries` delivers it, before the leader has counted the acknowledgements, so a follower can hold an entry that no majority committed. Replication is set based, with no log matching and no backtracking.
+* Static work pool. `DynamicWorkDivider` shards numbers by modulo over the full peer list minus the current leader, so numbers that belong to a crashed follower are never recomputed. With three nodes and one of them dead, the surviving follower can be left with a shard of only even numbers, which holds no prime beyond 2.
+* Votes carry no term. `AppendResponse` returns the responder's term and a stale leader steps down, but `VoteResponse` has only `voteGranted`, so a candidate learns about newer terms only from incoming RPCs.
+* Raft state is not persisted. Term, vote and log live in memory and the search restarts from 1, so a restarted process finds and commits the same numbers again. The PostgreSQL registry absorbs the duplicates with `ON CONFLICT DO NOTHING`.
+* Incomplete tail in PostgreSQL. The leader writes only full batches of 50, so the last primes of an unfinished batch are never stored.
+* One process. All nodes and the storage service share a single process, so a node failure is simulated by pausing it in the dashboard, and stopping the process stops the whole cluster.
+* No catch-up after a pause. A paused node rejects consensus calls and after a resume receives only new commits, because `AppendEntries` carries a single number, so its in-memory log keeps the gap.
+* Extra elections. With eight nodes the leader is sometimes replaced without any failure. In one run an idle cluster, waiting for the start signal, changed leader three times in 163 seconds, and it also happened while the search was running. The cause is not known.
