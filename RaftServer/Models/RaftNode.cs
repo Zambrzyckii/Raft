@@ -24,4 +24,4 @@ public class RaftNode
     }
 }
 
-public record LogEntry(int Term, int PrimeNumber);
+public record LogEntry(int Term, int PrimeNumber, string? FoundBy = null, string? SearchTime = null);
