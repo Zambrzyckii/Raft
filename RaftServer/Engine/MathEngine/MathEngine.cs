@@ -15,7 +15,7 @@ public class MathEngine : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (!_context.paused && _context._currentState == Role.Follower && !string.IsNullOrEmpty(_context.currentLeader))
+            if (!_context.paused && !_context.waitingForStart && _context._currentState == Role.Follower && !string.IsNullOrEmpty(_context.currentLeader))
             {
                 if (DynamicWorkDivider.IsMyTurn(_context, _currentNumber))
                 {
@@ -24,6 +24,7 @@ public class MathEngine : BackgroundService
                     
                     if (isPrime && !_context.OfficialPrimes.Exists(p => p.PrimeNumber == _currentNumber))
                     {
+                        _context.AddEvent("found", _currentNumber);
                         try
                         {
                             await ReliableProposer.SendAndWaitForAckAsync(_context, _currentNumber, stoper.Elapsed.ToString(), stoppingToken);
@@ -33,7 +34,7 @@ public class MathEngine : BackgroundService
                 }
 
                 _currentNumber++;
-                await Task.Delay(50, stoppingToken);
+                await Task.Delay(_context.workDelay, stoppingToken);
             }
             else
             {

@@ -1,0 +1,211 @@
+header {
+  padding: 1rem 1.5rem 0;
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 0.8rem;
+}
+
+.brand {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 400;
+}
+
+.brand strong {
+  letter-spacing: 0.08em;
+}
+
+.summary {
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.console {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  padding: 0.8rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8rem;
+}
+
+.prompt {
+  display: flex;
+  align-items: center;
+  flex: 1 1 24rem;
+  min-width: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.host {
+  flex: none;
+  margin-right: 0.6em;
+  color: var(--dim);
+}
+
+.text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.start {
+  flex: none;
+  margin-right: 0.6em;
+  padding: 0 0.7em;
+  border: 0;
+  background: var(--accent);
+  color: var(--bg);
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.start:hover {
+  box-shadow: 0 0 22px var(--accent-glow);
+}
+
+.start:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.dim {
+  color: var(--dim);
+}
+
+.ok {
+  color: var(--accent);
+}
+
+.err {
+  padding: 0 0.25em;
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.cursor {
+  flex: none;
+  width: 0.55em;
+  height: 1.1em;
+  margin-left: 0.4em;
+  background: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+.tempo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.label,
+.value {
+  color: var(--ink);
+}
+
+.value {
+  min-width: 7ch;
+  text-align: right;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+input {
+  appearance: none;
+  width: 9rem;
+  height: 1.4rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+input::-webkit-slider-runnable-track {
+  height: 0.6rem;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 0.7rem, var(--bg) 0.7rem 0.9rem),
+    linear-gradient(90deg, var(--accent) var(--fill), var(--line) var(--fill));
+}
+
+input::-moz-range-track {
+  height: 0.6rem;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 0.7rem, var(--bg) 0.7rem 0.9rem),
+    linear-gradient(90deg, var(--accent) var(--fill), var(--line) var(--fill));
+}
+
+input::-webkit-slider-thumb {
+  appearance: none;
+  width: 0.3rem;
+  height: 1.2rem;
+  margin-top: -0.3rem;
+  background: var(--ink);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+input::-moz-range-thumb {
+  width: 0.3rem;
+  height: 1.2rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  header {
+    padding: 0.75rem 1rem 0;
+  }
+
+  .console {
+    padding: 0.7rem 0;
+  }
+
+  .prompt {
+    display: block;
+    min-height: 2lh;
+    white-space: normal;
+  }
+
+  .cursor {
+    display: inline-block;
+    vertical-align: -0.2em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    animation: none;
+  }
+}

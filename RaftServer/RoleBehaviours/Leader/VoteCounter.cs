@@ -16,6 +16,7 @@ public static class VoteCounter
                 if (!_context.OfficialPrimes.Exists(p=> p.PrimeNumber == numberToVote))
                 {
                     _context.OfficialPrimes.Add(new LogEntry(_context.currentTerm, numberToVote, currentProposal.MyAddress, currentProposal.SearchTime));
+                    _context.AddEvent("committed", numberToVote);
                 }
             }
         }

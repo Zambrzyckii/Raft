@@ -1,38 +1,261 @@
 main {
-  font-family: sans-serif;
-  margin: 2rem;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
+.arena {
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: start center;
 }
 
-li {
-  padding: 0.5rem;
-  border-bottom: 1px solid #ddd;
+.stage {
+  position: relative;
+  width: min(100cqw - 1rem, 100cqh, (100cqh - 7.5rem) / 0.86);
+  aspect-ratio: 1;
 }
 
-li span {
-  margin-left: 1rem;
+.orbit {
+  position: absolute;
+  left: 12%;
+  top: 10%;
+  width: 76%;
+  height: 76%;
+  border: 1px dashed var(--line);
+  border-radius: 50%;
 }
 
-li.leader {
-  background: #e6f4e6;
+.node {
+  position: absolute;
+  z-index: 2;
+  width: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -32px);
+  transition: left 800ms ease-in-out, top 800ms ease-in-out;
+  pointer-events: none;
 }
 
-li.offline {
-  color: #999;
+.circle {
+  width: 64px;
+  height: 64px;
+  border: 1px dashed var(--line);
+  border-radius: 50%;
+  background: var(--glass);
+  color: var(--ink);
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: 200ms;
 }
 
-.disconnected {
-  color: #b00;
+.circle:hover {
+  border-color: var(--ink);
 }
 
-.paused {
-  color: #b80;
+.circle:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
 }
 
-li button {
-  margin-left: 1rem;
+.leader .circle {
+  border-style: solid;
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 18px var(--accent-glow);
+  text-shadow: 0 0 8px var(--accent-glow);
+}
+
+.candidate .circle {
+  animation: blink 600ms steps(2, start) infinite;
+}
+
+.paused .circle {
+  border-style: dotted;
+  border-color: var(--dim);
+  opacity: 0.55;
+}
+
+.offline .circle {
+  cursor: default;
+  background: transparent;
+  opacity: 0.35;
+}
+
+.meta {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.tag,
+.line {
+  color: var(--ink);
+}
+
+.leader .tag,
+.done .status {
+  color: var(--accent);
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 4.5em;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.line {
+  animation: rise 250ms ease-out, expire 600ms ease-in 8s forwards;
+}
+
+.line + .line,
+.status {
+  color: var(--dim);
+}
+
+.shot {
+  position: absolute;
+  z-index: 1;
+  left: var(--x1);
+  top: var(--y1);
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px var(--accent-glow);
+  pointer-events: none;
+  animation: fly 600ms cubic-bezier(0.3, 0, 0.4, 1);
+}
+
+.halo,
+.ping {
+  position: absolute;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.halo {
+  z-index: 1;
+  width: 64px;
+  height: 64px;
+  transform: translate(-50%, -50%);
+  animation: halo 500ms ease-out forwards;
+}
+
+.ping {
+  left: 50%;
+  top: 48%;
+  width: 76%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) scale(0.08);
+  opacity: 0.9;
+  animation: ping 900ms ease-out forwards;
+}
+
+.waiting {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+@keyframes blink {
+  50% {
+    border-color: var(--ink);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
+@keyframes expire {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fly {
+  from {
+    left: var(--x0);
+    top: var(--y0);
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+}
+
+@keyframes halo {
+  to {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes ping {
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .node {
+    width: 96px;
+    transform: translate(-50%, -22px);
+  }
+
+  .circle,
+  .halo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .feed {
+    min-height: 3em;
+    font-size: 0.68rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .line + .line {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node {
+    transition: none;
+  }
+
+  .candidate .circle {
+    animation: none;
+    border-color: var(--ink);
+  }
+
+  .line {
+    animation: expire 600ms ease-in 8s forwards;
+  }
 }

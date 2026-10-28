@@ -1,34 +1,54 @@
+<app-backdrop />
 <main>
-  <h1>Raft cluster</h1>
+  <app-header />
 
-  @if (!cluster.connected()) {
-    <p class="disconnected">Gateway disconnected, reconnecting...</p>
-  }
-
-  @if (cluster.snapshot(); as snapshot) {
-    <p>Snapshot {{ snapshot.timestamp }}</p>
-    <ul>
-      @for (node of snapshot.nodes; track node.address) {
-        <li [class.leader]="node.role === 'Leader'" [class.offline]="!node.online">
-          <strong>{{ node.id || node.address }}</strong>
-          @if (node.online) {
-            <span>{{ node.role }}</span>
-            <span>term {{ node.currentTerm }}</span>
-            <span>log {{ node.logCount }}</span>
-            <span>pending {{ node.pendingCount }}</span>
-            @if (node.paused) {
-              <span class="paused">paused</span>
-              <button (click)="cluster.resume(node.index)">Resume</button>
-            } @else {
-              <button (click)="cluster.pause(node.index)">Pause</button>
-            }
-          } @else {
-            <span>offline</span>
-          }
-        </li>
+  <section class="arena">
+    <div class="stage">
+      <div class="orbit"></div>
+      @for (ping of playback.pings(); track ping) {
+        <span class="ping" (animationend)="playback.removePing(ping)"></span>
       }
-    </ul>
-  } @else {
-    <p>Waiting for the first snapshot from the gateway...</p>
-  }
+      @for (node of scene(); track node.status.index) {
+        <div class="node"
+             [style.left.%]="node.at.x"
+             [style.top.%]="node.at.y"
+             [class.leader]="node.isCenter"
+             [class.candidate]="node.status.role === 'Candidate' && node.status.online"
+             [class.paused]="node.status.paused"
+             [class.offline]="!node.status.online">
+          <button type="button" class="circle" (click)="toggle(node.status)"
+                  [disabled]="!node.status.online"
+                  [attr.aria-label]="(node.status.paused ? 'resume node ' : 'pause node ') + node.status.index">
+            {{ node.status.index }}
+          </button>
+          <div class="meta">
+            @if (node.status.online) {
+              <span>t{{ node.status.currentTerm }} · log {{ node.status.logCount }}</span>
+            }
+            @if (node.tag) {
+              <span class="tag">[{{ node.tag }}]</span>
+            }
+          </div>
+          <div class="feed">
+            @for (line of playback.lines()[node.status.index] ?? []; track line.id) {
+              <span class="line" [class.done]="line.done">{{ line.text }} <span class="status">{{ line.status }}</span></span>
+            }
+          </div>
+        </div>
+      }
+      @for (halo of playback.halos(); track halo.id) {
+        <span class="halo" [style.left.%]="halo.at.x" [style.top.%]="halo.at.y"
+              (animationend)="playback.removeHalo(halo.id)"></span>
+      }
+      @for (shot of playback.shots(); track shot.id) {
+        <span class="shot"
+              [style.--x0]="shot.from.x + '%'" [style.--y0]="shot.from.y + '%'"
+              [style.--x1]="shot.to.x + '%'" [style.--y1]="shot.to.y + '%'"
+              (animationend)="playback.removeShot(shot.id)">{{ shot.label }}</span>
+      }
+      @if (!cluster.snapshot()) {
+        <p class="waiting">waiting for cluster data</p>
+      }
+    </div>
+  </section>
 </main>

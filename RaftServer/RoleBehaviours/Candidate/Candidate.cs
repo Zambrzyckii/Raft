@@ -6,12 +6,16 @@ namespace Raft.RoleBehaviours;
 
 public class Candidate : IRaftState
 {
+    private int _grantedVotes;
+
     public async Task Execute(RaftNode _context)
     {
-        
+
         Console.WriteLine($"[{_context.id}] I'm: {_context._currentState} and I start campain, my term is: {_context.currentTerm + 1}");
         _context.votedFor = _context.id;
         _context.currentTerm++;
+        _context.AddEvent("campaign", _context.currentTerm);
+        _grantedVotes = 1;
 
         VoteResponse?[] responses = await FarmVoteResponses(_context);
 
@@ -36,6 +40,17 @@ public class Candidate : IRaftState
         }
     }
 
+    private async Task<VoteResponse?> GetVoteTracked(RaftNode _context, RaftConsensus.RaftConsensusClient client, VoteRequest package, string voter)
+    {
+        var response = await GetVoteSafe(client, package);
+        if (response?.VoteGranted == true)
+        {
+            int votes = Interlocked.Increment(ref _grantedVotes);
+            _context.AddEvent("vote", votes, voter);
+        }
+        return response;
+    }
+
     private async Task<VoteResponse?[]> FarmVoteResponses(RaftNode _context)
     {
         List<Task<VoteResponse?>> theVote = new();
@@ -48,7 +63,7 @@ public class Candidate : IRaftState
                 var result = GrpcChannel.ForAddress(candidate);
                 var client = new RaftConsensus.RaftConsensusClient(result);
                 var package = new VoteRequest { Term = _context.currentTerm, Candidate = _context.id, LastLogIndex = myLogLength, LastLogTerm = myLastTerm};
-                theVote.Add(GetVoteSafe(client, package));
+                theVote.Add(GetVoteTracked(_context, client, package, candidate));
             }
         }
 
@@ -63,11 +78,13 @@ public class Candidate : IRaftState
         if (grantedVotes >= toWin)
         {
             Console.WriteLine($"[{_context.id}] I won, I've got {grantedVotes}/{allCandidates} votes");
+            _context.AddEvent("won", grantedVotes);
             _context._currentState = Role.Leader;
         }
         else
         {
             Console.WriteLine($"[{_context.id}] I lost, I've got {grantedVotes} votes");
+            _context.AddEvent("lost", grantedVotes);
             _context._currentState = Role.Follower;
         }
     }

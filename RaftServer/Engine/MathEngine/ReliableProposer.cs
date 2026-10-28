@@ -11,6 +11,7 @@ public static class ReliableProposer
     public static async Task SendAndWaitForAckAsync(RaftNode context, int primeNumber, string searchTime, CancellationToken token)
     {
         bool isCommitted = false;
+        context.AddEvent("propose", primeNumber, context.currentLeader);
 
         while (!isCommitted && !token.IsCancellationRequested && !context.paused)
         {
