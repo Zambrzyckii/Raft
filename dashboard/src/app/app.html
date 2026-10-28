@@ -16,6 +16,12 @@
             <span>term {{ node.currentTerm }}</span>
             <span>log {{ node.logCount }}</span>
             <span>pending {{ node.pendingCount }}</span>
+            @if (node.paused) {
+              <span class="paused">paused</span>
+              <button (click)="cluster.resume(node.index)">Resume</button>
+            } @else {
+              <button (click)="cluster.pause(node.index)">Pause</button>
+            }
           } @else {
             <span>offline</span>
           }

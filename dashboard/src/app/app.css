@@ -28,3 +28,11 @@ li.offline {
 .disconnected {
   color: #b00;
 }
+
+.paused {
+  color: #b80;
+}
+
+li button {
+  margin-left: 1rem;
+}
