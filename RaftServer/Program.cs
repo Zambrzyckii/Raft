@@ -3,7 +3,6 @@ using Raft.Hosting;
 using Raft.Services;
 
 int nodesCount = args.Length > 0 ? int.Parse(args[0]) : 8;
-File.Delete("primes.txt");
 
 var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false)

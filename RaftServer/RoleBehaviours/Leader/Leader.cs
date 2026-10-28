@@ -2,13 +2,11 @@ using Raft.Interfaces;
 using Raft.Models;
 using Grpc.Net.Client;
 using Raft.Grpc;
-using Raft.Services;
 
 namespace Raft.RoleBehaviours.Leader;
 
 public class Leader : IRaftState
 {
-    private static FileStorageService _fileStorageService = new();
     private readonly Dictionary<string, GrpcChannel> _channelCache = new();
     public async Task Execute(RaftNode _context)
     {
@@ -47,7 +45,7 @@ public class Leader : IRaftState
                 if (response?.IsDone == true) sendAgreed++;
             }
 
-            await VoteCounter.VoteResultsMethod(_context, numberToVote, sendAgreed, currentProposal, _fileStorageService);
+            await VoteCounter.VoteResultsMethod(_context, numberToVote, sendAgreed);
 
             lock (_context.pendingNumber)
             {
