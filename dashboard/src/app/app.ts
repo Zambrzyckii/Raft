@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Backdrop } from './backdrop';
 import { Cluster } from './cluster';
 import { NodeStatus } from './cluster-state';
 import { Header } from './header';
@@ -15,7 +16,7 @@ interface SceneNode {
 
 @Component({
   selector: 'app-root',
-  imports: [Header],
+  imports: [Backdrop, Header],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
