@@ -93,6 +93,7 @@ header {
   min-width: 7ch;
   text-align: right;
   text-transform: none;
+  letter-spacing: 0;
 }
 
 input {
