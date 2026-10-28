@@ -16,6 +16,8 @@ await using var dataSource = NpgsqlDataSource.Create(connectionString);
 var storage = new PostgresStorageService(dataSource);
 await storage.EnsureTableAsync();
 
+string? bindHost = config["BindHost"];
+
 List<string> allAdress = new();
 for (int i = 1; i <= nodesCount; i++)
 {
@@ -25,7 +27,7 @@ for (int i = 1; i <= nodesCount; i++)
 List<Task> workingServers = new();
 foreach (var adress in allAdress)
 {
-    var app = NodeHost.Build(adress, allAdress, args, storage);
+    var app = NodeHost.Build(adress, allAdress, args, storage, bindHost);
     workingServers.Add(app.RunAsync());
 }
 await Task.WhenAll(workingServers);

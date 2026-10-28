@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "Raft.Grpc";
+
+service RaftMonitoring {
+  rpc GetStatus (StatusRequest) returns (StatusResponse);
+}
+
+message StatusRequest {
+}
+
+message StatusResponse {
+  string id = 1;
+  string role = 2;
+  int32 currentTerm = 3;
+  string currentLeader = 4;
+  int32 logCount = 5;
+  int32 pendingCount = 6;
+}

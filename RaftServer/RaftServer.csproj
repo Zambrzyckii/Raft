@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <Protobuf Include="Protos\RaftConsensus.proto" GrpcServices="Both" />
+        <Protobuf Include="Protos\RaftMonitoring.proto" GrpcServices="Both" />
     </ItemGroup>
 
     <ItemGroup>
