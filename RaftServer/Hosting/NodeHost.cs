@@ -20,7 +20,8 @@ public static class NodeHost
             }
         }
         var builder = WebApplication.CreateBuilder(args);
-        builder.WebHost.UseUrls(adress);
+        int port = new Uri(adress).Port;
+        builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
         builder.Services.AddSingleton(myAdress);
         if (storage != null)
         {
