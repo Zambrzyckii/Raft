@@ -20,5 +20,14 @@ builder.Services.AddHostedService(provider => new ClusterPoller(
     provider.GetRequiredService<IHubContext<ClusterHub>>()));
 
 var app = builder.Build();
+
+string indexFile = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "index.html");
+if (File.Exists(indexFile))
+{
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+    app.MapFallbackToFile("index.html");
+}
+
 app.MapHub<ClusterHub>("/hub/cluster");
 app.Run();
