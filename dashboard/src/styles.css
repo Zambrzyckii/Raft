@@ -1,1 +1,31 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --bg: #050507;
+  --line: #23252e;
+  --dim: #6b7280;
+  --bright: #e5e7eb;
+  --accent: #4457ff;
+  --accent-glow: rgba(68, 87, 255, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image: radial-gradient(circle, #13151e 1px, transparent 1px);
+  background-size: 26px 26px;
+  color: var(--bright);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+button,
+input {
+  font-family: inherit;
+}

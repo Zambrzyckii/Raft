@@ -36,6 +36,12 @@ export class Cluster {
     });
   }
 
+  setSpeed(delayMs: number): void {
+    this.http.post(`/api/speed/${delayMs}`, null).subscribe({
+      error: error => console.error(`speed change to ${delayMs} failed`, error)
+    });
+  }
+
   private async start(): Promise<void> {
     try {
       await this.connection.start();

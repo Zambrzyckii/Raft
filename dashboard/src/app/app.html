@@ -1,34 +1,58 @@
 <main>
-  <h1>Raft cluster</h1>
+  <header>
+    <div class="brand">
+      <span class="title">RAFT CLUSTER</span>
+      <span class="sub">distributed prime search</span>
+    </div>
+    <div class="panel">
+      <span class="stat"><span class="label">term</span>{{ term() }}</span>
+      <span class="stat"><span class="label">log</span>{{ leader()?.status?.logCount ?? 0 }}</span>
+      <label class="speed">
+        <span class="label">slow</span>
+        <input type="range" min="100" max="2000" step="100"
+               [value]="sliderValue()" (change)="onSpeedChange($event)" aria-label="search speed" />
+        <span class="label">fast</span>
+      </label>
+      <span class="link" [class.live]="cluster.connected()">{{ cluster.connected() ? 'live' : 'reconnecting' }}</span>
+    </div>
+  </header>
 
-  @if (!cluster.connected()) {
-    <p class="disconnected">Gateway disconnected, reconnecting...</p>
-  }
-
-  @if (cluster.snapshot(); as snapshot) {
-    <p>Snapshot {{ snapshot.timestamp }}</p>
-    <ul>
-      @for (node of snapshot.nodes; track node.address) {
-        <li [class.leader]="node.role === 'Leader'" [class.offline]="!node.online">
-          <strong>{{ node.id || node.address }}</strong>
-          @if (node.online) {
-            <span>{{ node.role }}</span>
-            <span>term {{ node.currentTerm }}</span>
-            <span>log {{ node.logCount }}</span>
-            <span>pending {{ node.pendingCount }}</span>
-            @if (node.paused) {
-              <span class="paused">paused</span>
-              <button (click)="cluster.resume(node.index)">Resume</button>
-            } @else {
-              <button (click)="cluster.pause(node.index)">Pause</button>
+  <section class="stage">
+    <div class="orbit"></div>
+    @for (node of scene(); track node.status.index) {
+      <div class="node"
+           [style.left.%]="node.x"
+           [style.top.%]="node.y"
+           [attr.data-node]="node.status.index"
+           [class.center]="node.isCenter"
+           [class.leader]="node.status.role === 'Leader' && node.status.online"
+           [class.candidate]="node.status.role === 'Candidate' && node.status.online"
+           [class.paused]="node.status.paused"
+           [class.offline]="!node.status.online">
+        <button type="button" class="circle" (click)="toggle(node.status)"
+                [disabled]="!node.status.online"
+                [attr.aria-label]="node.status.paused ? 'resume node ' + node.status.index : 'pause node ' + node.status.index">
+          {{ node.status.index }}
+        </button>
+        <div class="meta">
+          @if (node.status.online) {
+            <span>t{{ node.status.currentTerm }} · log {{ node.status.logCount }}</span>
+            @if (node.status.paused) {
+              <span class="tag">paused</span>
             }
           } @else {
-            <span>offline</span>
+            <span class="tag">offline</span>
           }
-        </li>
-      }
-    </ul>
-  } @else {
-    <p>Waiting for the first snapshot from the gateway...</p>
-  }
+        </div>
+        <div class="feed">
+          @for (message of messages()[node.status.index] ?? []; track message.id) {
+            <span class="line">{{ message.text }}</span>
+          }
+        </div>
+      </div>
+    }
+    @if (!cluster.snapshot()) {
+      <p class="waiting">waiting for cluster...</p>
+    }
+  </section>
 </main>
