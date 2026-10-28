@@ -1,0 +1,28 @@
+<main>
+  <h1>Raft cluster</h1>
+
+  @if (!cluster.connected()) {
+    <p class="disconnected">Gateway disconnected, reconnecting...</p>
+  }
+
+  @if (cluster.snapshot(); as snapshot) {
+    <p>Snapshot {{ snapshot.timestamp }}</p>
+    <ul>
+      @for (node of snapshot.nodes; track node.address) {
+        <li [class.leader]="node.role === 'Leader'" [class.offline]="!node.online">
+          <strong>{{ node.id || node.address }}</strong>
+          @if (node.online) {
+            <span>{{ node.role }}</span>
+            <span>term {{ node.currentTerm }}</span>
+            <span>log {{ node.logCount }}</span>
+            <span>pending {{ node.pendingCount }}</span>
+          } @else {
+            <span>offline</span>
+          }
+        </li>
+      }
+    </ul>
+  } @else {
+    <p>Waiting for the first snapshot from the gateway...</p>
+  }
+</main>

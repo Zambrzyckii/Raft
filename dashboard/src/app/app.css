@@ -1,0 +1,30 @@
+main {
+  font-family: sans-serif;
+  margin: 2rem;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+li span {
+  margin-left: 1rem;
+}
+
+li.leader {
+  background: #e6f4e6;
+}
+
+li.offline {
+  color: #999;
+}
+
+.disconnected {
+  color: #b00;
+}
