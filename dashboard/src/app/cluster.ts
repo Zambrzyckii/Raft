@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import { Observable, Subject } from 'rxjs';
 import { ClusterSnapshot } from './cluster-state';
 
 @Injectable({
@@ -11,6 +12,8 @@ export class Cluster {
   readonly connected = signal(false);
 
   private readonly http = inject(HttpClient);
+  private readonly incoming = new Subject<ClusterSnapshot>();
+  readonly snapshots: Observable<ClusterSnapshot> = this.incoming.asObservable();
 
   private readonly connection: HubConnection = new HubConnectionBuilder()
     .withUrl('/hub/cluster')
@@ -18,7 +21,10 @@ export class Cluster {
     .build();
 
   constructor() {
-    this.connection.on('ClusterState', (snapshot: ClusterSnapshot) => this.snapshot.set(snapshot));
+    this.connection.on('ClusterState', (snapshot: ClusterSnapshot) => {
+      this.snapshot.set(snapshot);
+      this.incoming.next(snapshot);
+    });
     this.connection.onreconnecting(() => this.connected.set(false));
     this.connection.onreconnected(() => this.connected.set(true));
     void this.start();

@@ -19,10 +19,13 @@
 
   <section class="stage">
     <div class="orbit"></div>
+    @for (ping of playback.pings(); track ping) {
+      <span class="ping" (animationend)="playback.removePing(ping)"></span>
+    }
     @for (node of scene(); track node.status.index) {
       <div class="node"
-           [style.left.%]="node.x"
-           [style.top.%]="node.y"
+           [style.left.%]="node.at.x"
+           [style.top.%]="node.at.y"
            [attr.data-node]="node.status.index"
            [class.center]="node.isCenter"
            [class.leader]="node.status.role === 'Leader' && node.status.online"
@@ -45,11 +48,21 @@
           }
         </div>
         <div class="feed">
-          @for (message of messages()[node.status.index] ?? []; track message.id) {
-            <span class="line">{{ message.text }}</span>
+          @for (line of playback.lines()[node.status.index] ?? []; track line.id) {
+            <span class="line" [class.done]="line.done">{{ line.text }} <span class="status">{{ line.status }}</span></span>
           }
         </div>
       </div>
+    }
+    @for (halo of playback.halos(); track halo.id) {
+      <span class="halo" [style.left.%]="halo.at.x" [style.top.%]="halo.at.y"
+            (animationend)="playback.removeHalo(halo.id)"></span>
+    }
+    @for (shot of playback.shots(); track shot.id) {
+      <span class="shot"
+            [style.--x0]="shot.from.x + '%'" [style.--y0]="shot.from.y + '%'"
+            [style.--x1]="shot.to.x + '%'" [style.--y1]="shot.to.y + '%'"
+            (animationend)="playback.removeShot(shot.id)">{{ shot.label }}</span>
     }
     @if (!cluster.snapshot()) {
       <p class="waiting">waiting for cluster...</p>
