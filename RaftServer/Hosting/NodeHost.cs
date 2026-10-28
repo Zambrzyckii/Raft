@@ -28,7 +28,10 @@ public static class NodeHost
             builder.Services.AddSingleton(storage);
             builder.Services.AddHostedService<StorageEngine>();
         }
-        builder.Services.AddGrpc();
+        builder.Services.AddGrpc().AddServiceOptions<ConsensusService>(options =>
+        {
+            options.Interceptors.Add<ChaosInterceptor>();
+        });
         builder.Services.AddHostedService<RaftEngine>();
         builder.Services.AddHostedService<MathEngine>();
         var app = builder.Build();
