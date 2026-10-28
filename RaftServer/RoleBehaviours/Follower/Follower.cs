@@ -20,6 +20,7 @@ public class Follower() : IRaftState
             }
 
             Console.WriteLine($"[{_context.id}] Timeout leader is dead");
+            _context.AddEvent("timeout");
             _context._currentState = Role.Candidate;
         }
         catch (TaskCanceledException)

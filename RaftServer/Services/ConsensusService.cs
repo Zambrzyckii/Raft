@@ -42,6 +42,7 @@ public class ConsensusService : RaftConsensus.RaftConsensusBase
                 if (!_node.OfficialPrimes.Exists(p=> p.PrimeNumber == request.Number) && _node.pendingNumber.All(p => p.Number != request.Number))
                 {
                     _node.pendingNumber.Enqueue(request);
+                    _node.AddEvent("received", request.Number, request.MyAddress);
                 }
             }
 

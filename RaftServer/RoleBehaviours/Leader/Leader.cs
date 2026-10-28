@@ -31,6 +31,7 @@ public class Leader : IRaftState
                 return; 
             }
             int numberToVote = currentProposal.Number;
+            _context.AddEvent("replicate", numberToVote);
 
             AppendResponse?[] theResults = await ProposeNumbers.SendProposeNumbers(_context, numberToVote, _channelCache);
 
