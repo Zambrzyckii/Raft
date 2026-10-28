@@ -24,12 +24,12 @@ public class ClusterPoller : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(500));
+        while (await timer.WaitForNextTickAsync(stoppingToken))
         {
             var statuses = await Task.WhenAll(_nodeAddresses.Select(GetStatusSafe));
             var snapshot = new ClusterSnapshot(DateTime.UtcNow, statuses.ToList());
             await _hub.Clients.All.SendAsync("ClusterState", snapshot, stoppingToken);
-            await Task.Delay(500, stoppingToken);
         }
     }
 
