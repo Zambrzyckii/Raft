@@ -32,6 +32,7 @@ public static class NodeHost
         builder.Services.AddHostedService<MathEngine>();
         var app = builder.Build();
         app.MapGrpcService<ConsensusService>();
+        app.MapGrpcService<MonitoringService>();
         return app;
     }
 }
