@@ -1,0 +1,38 @@
+<header>
+  <div class="bar">
+    <h1 class="brand"><strong>RAFT</strong> / prime search</h1>
+    <span class="summary">[ term {{ term() }} · leader {{ leader() ? '#' + leader()!.index : 'none' }} · log {{ leader()?.logCount ?? 0 }} ]</span>
+  </div>
+  <div class="console">
+    <p class="prompt">
+      <span class="host">raft&#64;cluster:~$</span>
+      <span aria-live="polite">
+        @if (!cluster.connected()) {
+          @if (cluster.snapshot()) {
+            <span class="err">[ERR]</span> gateway connection lost, retrying
+          } @else {
+            <span class="dim">[..]</span> connecting to the gateway
+          }
+        } @else {
+          @if (cluster.notice(); as notice) {
+            {{ notice.command }}
+            <span [class.ok]="notice.ok" [class.err]="!notice.ok">{{ notice.ok ? '[OK]' : '[ERR]' }}</span>
+            {{ notice.text }}
+          } @else {
+            <span class="dim"># click a node to pause or resume it</span>
+          }
+        }
+      </span><span class="cursor" aria-hidden="true"></span>
+    </p>
+    <label class="tempo">
+      <span class="label">tempo</span>
+      <span aria-hidden="true">slow</span>
+      <input type="range" min="0" [max]="lastStep" step="1"
+             [value]="step()" [style.--fill]="fill()"
+             (input)="onTempoInput($event)" (change)="onTempoChange($event)"
+             aria-label="search tempo" [attr.aria-valuetext]="delay() + ' ms per checked number'" />
+      <span aria-hidden="true">fast</span>
+      <span class="value">{{ delay() }} ms</span>
+    </label>
+  </div>
+</header>

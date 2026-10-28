@@ -5,7 +5,7 @@ export interface Point {
   y: number;
 }
 
-export const CENTER: Point = { x: 50, y: 50 };
+export const CENTER: Point = { x: 50, y: 48 };
 const RADIUS = 38;
 
 export function centerIndex(nodes: NodeStatus[]): number {

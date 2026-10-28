@@ -1,10 +1,12 @@
 :root {
-  --bg: #050507;
-  --line: #23252e;
-  --dim: #6b7280;
-  --bright: #e5e7eb;
-  --accent: #4457ff;
-  --accent-glow: rgba(68, 87, 255, 0.6);
+  --bg: #0d0c24;
+  --surface: #14123a;
+  --line: #2c2960;
+  --dim: #8783bd;
+  --ink: #dcd8ff;
+  --accent: #a28bff;
+  --accent-glow: rgba(162, 139, 255, 0.55);
+  color-scheme: dark;
 }
 
 * {
@@ -18,14 +20,17 @@ body {
 
 body {
   margin: 0;
-  background-color: var(--bg);
-  background-image: radial-gradient(circle, #13151e 1px, transparent 1px);
-  background-size: 26px 26px;
-  color: var(--bright);
+  background: var(--bg);
+  color: var(--ink);
   font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 button,
 input {
   font-family: inherit;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
 }
