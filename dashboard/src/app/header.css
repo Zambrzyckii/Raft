@@ -42,12 +42,24 @@ header {
 }
 
 .prompt {
+  display: flex;
+  align-items: center;
+  flex: 1 1 24rem;
+  min-width: 0;
   margin: 0;
+  white-space: nowrap;
 }
 
 .host {
+  flex: none;
   margin-right: 0.6em;
   color: var(--dim);
+}
+
+.text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dim {
@@ -65,11 +77,10 @@ header {
 }
 
 .cursor {
-  display: inline-block;
+  flex: none;
   width: 0.55em;
   height: 1.1em;
   margin-left: 0.4em;
-  vertical-align: -0.2em;
   background: var(--accent);
   animation: blink 1s steps(1) infinite;
 }
@@ -155,6 +166,17 @@ input::-moz-range-thumb {
 
   .console {
     padding: 0.7rem 0;
+  }
+
+  .prompt {
+    display: block;
+    min-height: 2lh;
+    white-space: normal;
+  }
+
+  .cursor {
+    display: inline-block;
+    vertical-align: -0.2em;
   }
 }
 

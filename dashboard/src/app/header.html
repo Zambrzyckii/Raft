@@ -6,7 +6,7 @@
   <div class="console">
     <p class="prompt">
       <span class="host">raft&#64;cluster:~$</span>
-      <span aria-live="polite">
+      <span class="text" aria-live="polite">
         @if (!cluster.connected()) {
           @if (cluster.snapshot()) {
             <span class="err">[ERR]</span> gateway connection lost, retrying
