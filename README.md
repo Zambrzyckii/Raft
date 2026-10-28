@@ -2,7 +2,7 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Zambrzyckii/Raft/ci.yml?branch=main&logo=github&label=CI)](https://github.com/Zambrzyckii/Raft/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Zambrzyckii/Raft)](https://github.com/Zambrzyckii/Raft/releases/latest)
-[![License](https://img.shields.io/github/license/Zambrzyckii/Raft)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge)
