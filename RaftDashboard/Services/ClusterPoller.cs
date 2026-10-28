@@ -39,6 +39,11 @@ public class ClusterPoller : BackgroundService
             long sinceSeq = _cursors.GetValueOrDefault(address);
             var response = await _clients.For(address).GetStatusAsync(
                 new StatusRequest { SinceSeq = sinceSeq }, deadline: DateTime.UtcNow.AddSeconds(1));
+            if (response.LastSeq < sinceSeq)
+            {
+                response = await _clients.For(address).GetStatusAsync(
+                    new StatusRequest(), deadline: DateTime.UtcNow.AddSeconds(1));
+            }
             _cursors[address] = response.LastSeq;
 
             if (response.WorkDelay != _speed.DelayMs)
