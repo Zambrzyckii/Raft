@@ -1,5 +1,6 @@
 using Raft.Engine.MathEngine;
 using Raft.Engine.RaftEngine;
+using Raft.Engine.StorageEngine;
 using Raft.Models;
 using Raft.Services;
 
@@ -24,6 +25,7 @@ public static class NodeHost
         if (storage != null)
         {
             builder.Services.AddSingleton(storage);
+            builder.Services.AddHostedService<StorageEngine>();
         }
         builder.Services.AddGrpc();
         builder.Services.AddHostedService<RaftEngine>();
