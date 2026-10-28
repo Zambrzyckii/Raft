@@ -11,7 +11,7 @@ export class Cluster {
 
   private readonly connection: HubConnection = new HubConnectionBuilder()
     .withUrl('/hub/cluster')
-    .withAutomaticReconnect()
+    .withAutomaticReconnect({ nextRetryDelayInMilliseconds: () => 2000 })
     .build();
 
   constructor() {

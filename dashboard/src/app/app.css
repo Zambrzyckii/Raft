@@ -24,3 +24,7 @@ li.leader {
 li.offline {
   color: #999;
 }
+
+.disconnected {
+  color: #b00;
+}

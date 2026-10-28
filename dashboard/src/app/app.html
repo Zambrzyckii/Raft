@@ -1,6 +1,10 @@
 <main>
   <h1>Raft cluster</h1>
 
+  @if (!cluster.connected()) {
+    <p class="disconnected">Gateway disconnected, reconnecting...</p>
+  }
+
   @if (cluster.snapshot(); as snapshot) {
     <p>Snapshot {{ snapshot.timestamp }}</p>
     <ul>
