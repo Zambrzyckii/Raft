@@ -23,6 +23,18 @@
     environment:
       ConnectionStrings__Primes: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
       BindHost: "*"
+  dashboard:
+    image: raft-dashboard
+    build:
+      context: .
+      dockerfile: RaftDashboard/Dockerfile
+    depends_on:
+      - raft
+    environment:
+      NodeHost: raft
+      GatewayUrl: "http://*:5100"
+    ports:
+      - "5100:5100"
 
 volumes:
   raft_pgdata:
