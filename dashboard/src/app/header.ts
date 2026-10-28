@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { Cluster } from './cluster';
 import { centerIndex } from './layout';
 
@@ -13,6 +13,7 @@ export class Header {
   protected readonly cluster = inject(Cluster);
   protected readonly lastStep = TEMPO_STEPS.length - 1;
   private readonly dragged = signal<number | null>(null);
+  private readonly tempo = viewChild.required<ElementRef<HTMLInputElement>>('tempo');
 
   protected readonly leader = computed(() => {
     const nodes = this.cluster.snapshot()?.nodes ?? [];
@@ -42,5 +43,10 @@ export class Header {
   protected onTempoChange(event: Event): void {
     this.cluster.setSpeed(TEMPO_STEPS[Number((event.target as HTMLInputElement).value)]);
     this.dragged.set(null);
+  }
+
+  protected start(): void {
+    this.cluster.startSearch();
+    this.tempo().nativeElement.focus();
   }
 }

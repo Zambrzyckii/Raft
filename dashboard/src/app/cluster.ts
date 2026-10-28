@@ -24,6 +24,8 @@ export class Cluster {
 
   private readonly pendingDelay = signal<number | null>(null);
   readonly delay = computed(() => this.pendingDelay() ?? this.snapshot()?.delayMs ?? 800);
+  private readonly startRequested = signal(false);
+  readonly waiting = computed(() => !this.startRequested() && isWaiting(this.snapshot()));
   private noticeTimer?: ReturnType<typeof setTimeout>;
 
   private readonly connection: HubConnection = new HubConnectionBuilder()
@@ -35,6 +37,9 @@ export class Cluster {
     this.connection.on('ClusterState', (snapshot: ClusterSnapshot) => {
       if (snapshot.delayMs === this.pendingDelay()) {
         this.pendingDelay.set(null);
+      }
+      if (!isWaiting(snapshot)) {
+        this.startRequested.set(false);
       }
       this.snapshot.set(snapshot);
       this.incoming.next(snapshot);
@@ -57,11 +62,17 @@ export class Cluster {
     this.send(`tempo ${delayMs}`, `/api/speed/${delayMs}`, `${delayMs} ms per checked number`, 'tempo');
   }
 
+  startSearch(): void {
+    this.startRequested.set(true);
+    this.send('start', '/api/search/start', 'prime search started', 'cluster');
+  }
+
   private send(command: string, url: string, success: string, subject: string): void {
     this.http.post(url, null).subscribe({
       next: () => this.show({ command, ok: true, text: success }),
       error: (error: HttpErrorResponse) => {
         this.pendingDelay.set(null);
+        this.startRequested.set(false);
         this.show({ command, ok: false, text: describe(error, subject) });
       }
     });
@@ -81,6 +92,10 @@ export class Cluster {
       setTimeout(() => void this.start(), 2000);
     }
   }
+}
+
+function isWaiting(snapshot: ClusterSnapshot | null): boolean {
+  return snapshot?.nodes.some(node => node.online && node.waitingForStart) ?? false;
 }
 
 function describe(error: HttpErrorResponse, subject: string): string {

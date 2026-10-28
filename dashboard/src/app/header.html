@@ -6,6 +6,9 @@
   <div class="console">
     <p class="prompt">
       <span class="host">raft&#64;cluster:~$</span>
+      @if (cluster.connected() && cluster.waiting()) {
+        <button type="button" class="start" (click)="start()">start prime search</button>
+      }
       <span class="text" aria-live="polite">
         @if (!cluster.connected()) {
           @if (cluster.snapshot()) {
@@ -18,7 +21,7 @@
             {{ notice.command }}
             <span [class.ok]="notice.ok" [class.err]="!notice.ok">{{ notice.ok ? '[OK]' : '[ERR]' }}</span>
             {{ notice.text }}
-          } @else {
+          } @else if (!cluster.waiting()) {
             <span class="dim"># click a node to pause or resume it</span>
           }
         }
@@ -27,7 +30,7 @@
     <label class="tempo">
       <span class="label">tempo</span>
       <span aria-hidden="true">slow</span>
-      <input type="range" min="0" [max]="lastStep" step="1"
+      <input #tempo type="range" min="0" [max]="lastStep" step="1"
              [value]="step()" [style.--fill]="fill()"
              (input)="onTempoInput($event)" (change)="onTempoChange($event)"
              aria-label="search tempo" [attr.aria-valuetext]="delay() + ' ms per checked number'" />

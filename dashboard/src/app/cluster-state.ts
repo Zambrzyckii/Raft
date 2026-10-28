@@ -11,6 +11,7 @@ export interface NodeStatus {
   address: string;
   online: boolean;
   paused: boolean;
+  waitingForStart: boolean;
   id: string;
   role: string;
   currentTerm: number;
