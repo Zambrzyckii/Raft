@@ -76,22 +76,16 @@ main {
   animation: blink 600ms steps(2, start) infinite;
 }
 
-.paused {
-  opacity: 0.55;
-}
-
 .paused .circle {
   border-style: dotted;
   border-color: var(--dim);
-}
-
-.offline {
-  opacity: 0.35;
+  opacity: 0.55;
 }
 
 .offline .circle {
   cursor: default;
   background: transparent;
+  opacity: 0.35;
 }
 
 .meta {
