@@ -2,15 +2,15 @@
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: raft
-      POSTGRES_USER: raft
-      POSTGRES_PASSWORD: raft
+      POSTGRES_DB: ${POSTGRES_DB:?copy .env.example to .env}
+      POSTGRES_USER: ${POSTGRES_USER:?copy .env.example to .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env}
     ports:
-      - "5434:5432"
+      - "${POSTGRES_PORT:-5434}:5432"
     volumes:
       - raft_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U raft"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       retries: 5
       start_period: 5s
@@ -21,7 +21,7 @@
       postgres:
         condition: service_healthy
     environment:
-      ConnectionStrings__Primes: "Host=postgres;Port=5432;Database=raft;Username=raft;Password=raft"
+      ConnectionStrings__Primes: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
 
 volumes:
   raft_pgdata:

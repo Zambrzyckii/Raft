@@ -6,10 +6,13 @@ int nodesCount = args.Length > 0 ? int.Parse(args[0]) : 8;
 
 var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false)
+    .AddInMemoryCollection(DotEnv.Load())
     .AddEnvironmentVariables()
     .Build();
 
-await using var dataSource = NpgsqlDataSource.Create(config.GetConnectionString("Primes")!);
+string connectionString = config.GetConnectionString("Primes")
+    ?? throw new InvalidOperationException("Connection string Primes not found, copy .env.example to .env");
+await using var dataSource = NpgsqlDataSource.Create(connectionString);
 var storage = new PostgresStorageService(dataSource);
 await storage.EnsureTableAsync();
 
