@@ -12,7 +12,7 @@ public static class ReliableProposer
     {
         bool isCommitted = false;
 
-        while (!isCommitted && !token.IsCancellationRequested)
+        while (!isCommitted && !token.IsCancellationRequested && !context.paused)
         {
             var currentLeader = context.currentLeader;
             if (!string.IsNullOrEmpty(currentLeader))
