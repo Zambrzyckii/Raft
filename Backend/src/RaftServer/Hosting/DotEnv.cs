@@ -31,11 +31,16 @@ public static class DotEnv
 
     private static string? FindFile()
     {
-        if (File.Exists(".env"))
+        var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (directory != null)
         {
-            return ".env";
+            string candidate = Path.Combine(directory.FullName, ".env");
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+            directory = directory.Parent;
         }
-        string parent = Path.Combine("..", ".env");
-        return File.Exists(parent) ? parent : null;
+        return null;
     }
 }

@@ -24,14 +24,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: dashboard
+        working-directory: Frontend
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 26
           cache: npm
-          cache-dependency-path: dashboard/package-lock.json
+          cache-dependency-path: Frontend/package-lock.json
       - run: npm ci
       - run: npm run build
 
@@ -42,11 +42,11 @@ jobs:
       matrix:
         include:
           - name: raft
-            context: RaftServer
-            file: RaftServer/Dockerfile
+            context: Backend/src/RaftServer
+            file: Backend/src/RaftServer/Dockerfile
           - name: raft-dashboard
             context: .
-            file: RaftDashboard/Dockerfile
+            file: Backend/src/RaftDashboard/Dockerfile
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v4

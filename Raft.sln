@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaftServer", "RaftServer\RaftServer.csproj", "{D5FF43C8-FCF4-47F4-B673-02B97D4A2FDF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaftServer", "Backend\src\RaftServer\RaftServer.csproj", "{D5FF43C8-FCF4-47F4-B673-02B97D4A2FDF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6EB500D5-1C83-4873-A7BF-4F872B1D16E3}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaftServer.Tests", "RaftServer.Tests\RaftServer.Tests.csproj", "{FCFFC2C5-443B-47C2-B057-61029B1A8960}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaftServer.Tests", "Backend\tests\RaftServer.Tests\RaftServer.Tests.csproj", "{FCFFC2C5-443B-47C2-B057-61029B1A8960}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaftDashboard", "RaftDashboard\RaftDashboard.csproj", "{3220EFE1-9D90-457D-B466-94DDAF258704}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaftDashboard", "Backend\src\RaftDashboard\RaftDashboard.csproj", "{3220EFE1-9D90-457D-B466-94DDAF258704}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

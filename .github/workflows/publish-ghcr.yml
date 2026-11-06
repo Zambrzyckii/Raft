@@ -18,12 +18,12 @@ jobs:
       matrix:
         include:
           - name: raft
-            context: RaftServer
-            file: RaftServer/Dockerfile
+            context: Backend/src/RaftServer
+            file: Backend/src/RaftServer/Dockerfile
             description: Raft cluster of prime-searching nodes, all nodes in one process
           - name: raft-dashboard
             context: .
-            file: RaftDashboard/Dockerfile
+            file: Backend/src/RaftDashboard/Dockerfile
             description: Gateway and Angular dashboard for the Raft cluster
     steps:
       - uses: actions/checkout@v7
