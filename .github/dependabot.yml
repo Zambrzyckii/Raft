@@ -2,9 +2,9 @@ version: 2
 updates:
   - package-ecosystem: nuget
     directories:
-      - /RaftServer
-      - /RaftDashboard
-      - /RaftServer.Tests
+      - /Backend/src/RaftServer
+      - /Backend/src/RaftDashboard
+      - /Backend/tests/RaftServer.Tests
     schedule:
       interval: weekly
     groups:
@@ -21,8 +21,8 @@ updates:
         update-types: [minor, patch]
   - package-ecosystem: docker
     directories:
-      - /RaftServer
-      - /RaftDashboard
+      - /Backend/src/RaftServer
+      - /Backend/src/RaftDashboard
     schedule:
       interval: weekly
     groups:

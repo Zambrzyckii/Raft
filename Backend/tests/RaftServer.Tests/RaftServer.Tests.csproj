@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\RaftServer\RaftServer.csproj" />
+      <ProjectReference Include="..\..\src\RaftServer\RaftServer.csproj" />
     </ItemGroup>
 
 </Project>

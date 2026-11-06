@@ -42,11 +42,11 @@ jobs:
       matrix:
         include:
           - name: raft
-            context: RaftServer
-            file: RaftServer/Dockerfile
+            context: Backend/src/RaftServer
+            file: Backend/src/RaftServer/Dockerfile
           - name: raft-dashboard
             context: .
-            file: RaftDashboard/Dockerfile
+            file: Backend/src/RaftDashboard/Dockerfile
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v4

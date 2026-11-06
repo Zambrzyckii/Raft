@@ -16,7 +16,7 @@
       start_period: 5s
   raft:
     image: raft
-    build: ./RaftServer
+    build: ./Backend/src/RaftServer
     depends_on:
       postgres:
         condition: service_healthy
@@ -28,7 +28,7 @@
     image: raft-dashboard
     build:
       context: .
-      dockerfile: RaftDashboard/Dockerfile
+      dockerfile: Backend/src/RaftDashboard/Dockerfile
     depends_on:
       - raft
     environment:

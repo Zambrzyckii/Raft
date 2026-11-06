@@ -12,10 +12,10 @@ RUN npm run build
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["RaftDashboard/RaftDashboard.csproj", "RaftDashboard/"]
+COPY ["Backend/src/RaftDashboard/RaftDashboard.csproj", "RaftDashboard/"]
 RUN dotnet restore "RaftDashboard/RaftDashboard.csproj"
-COPY RaftDashboard/ RaftDashboard/
-COPY RaftServer/Protos/ RaftServer/Protos/
+COPY Backend/src/RaftDashboard/ RaftDashboard/
+COPY Backend/src/RaftServer/Protos/ RaftServer/Protos/
 
 RUN dotnet build "RaftDashboard/RaftDashboard.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
