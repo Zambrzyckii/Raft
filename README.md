@@ -43,7 +43,7 @@ Every release also publishes the images to GitHub Container Registry as `ghcr.io
 * The State pattern for the Follower, Candidate and Leader roles, and modulo sharding of the number space over the followers
 * gRPC for consensus between nodes (`RaftConsensus.proto`) and for monitoring from the gateway (`RaftMonitoring.proto`)
 * SignalR to push the cluster state from the gateway to the browser
-* Angular 22 with signals for the dashboard (`dashboard/`)
+* Angular 22 with signals for the dashboard (`Frontend/`)
 * PostgreSQL through Npgsql for the registry of found primes
 * xUnit for unit tests and in-process failover tests
 * Docker Compose for the postgres, cluster and dashboard services, GitHub Actions for CI and for publishing the images
