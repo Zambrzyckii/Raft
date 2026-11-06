@@ -4,9 +4,9 @@ WORKDIR /app
 
 FROM node:26-alpine AS client
 WORKDIR /src/dashboard
-COPY dashboard/package.json dashboard/package-lock.json ./
+COPY Frontend/package.json Frontend/package-lock.json ./
 RUN npm ci
-COPY dashboard/ ./
+COPY Frontend/ ./
 RUN npm run build
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
