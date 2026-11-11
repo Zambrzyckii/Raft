@@ -9,7 +9,7 @@ RUN npm ci
 COPY Frontend/ ./
 RUN npm run build
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Backend/src/RaftDashboard/RaftDashboard.csproj", "RaftDashboard/"]
